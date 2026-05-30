@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Immobilier DZ{% endblock %}</title>
+    <!-- Lien vers le fichier CSS commun -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <header>
+        <nav>
+            <!-- Navbar à coder par P3 -->
+            <a href="{{ url_for('index') }}">Accueil</a> | 
+            <a href="{{ url_for('publier') }}">Publier une annonce</a> |
+            <a href="{{ url_for('connexion') }}">Connexion</a> |
+            <a href="{{ url_for('inscription') }}">Inscription</a>
+        </nav>
+    </header>
+
+    <main class="container">
+        <!-- Zone d'affichage des messages flash de Flask -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash {{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Le contenu spécifique de chaque page sera injecté ici -->
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Projet Fin d'Études - Plateforme Immobilier DZ</p>
+    </footer>
+
+</body>
+</html>

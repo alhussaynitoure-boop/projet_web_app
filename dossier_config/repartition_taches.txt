@@ -1,0 +1,102 @@
+﻿--- Page 1 ---
+P1Personne 1 ÔÇö celui/celle qui conna├«t Flask
+Le moteur de l'application ┬À Backend complet
++ exp├®riment├®
+Cr├®er la structure du projet Flask
+Initialiser le dossier du projet avec les bons sous-dossiers, cr├®er le fichier principal app.py, configurer
+Flask (cl├® secr├¿te, dossier d'upload, connexion SQLite). C'est la base sur laquelle tout le monde travaille
+ÔÇö ├ºa doit ├¬tre fait en premier.
+Fichiers : app.py ┬À config.py
+Cr├®er la base de donn├®es SQLite et toutes les tables
+├ëcrire le script Python qui cr├®e les 4 tables : users (id, nom, email, mot_de_passe, t├®l├®phone), annonces
+(id, titre, description, prix, surface, wilaya, type, statut, user_id, date), photos (id, annonce_id,
+chemin_fichier), sessions g├®r├®es par Flask. D├®finir les cl├®s primaires et ├®trang├¿res.
+Fichiers : models.py ┬À init_db.py ┬À app.db
+Routes d'authentification (inscription, connexion, d├®connexion)
+├ëcrire les 3 routes Flask : GET/POST /inscription (cr├®er un compte, hacher le mot de passe avec
+werkzeug), GET/POST /connexion (v├®rifier le mot de passe hach├®, stocker l'user_id en session), GET
+/deconnexion (vider la session). Prot├®ger les pages qui n├®cessitent d'├¬tre connect├® avec un d├®corateur
+@login_required.
+Fichiers : app.py ┬À auth.py
+Routes pour les annonces (publier, modifier, supprimer)
+Route POST /publier : r├®cup├®rer les donn├®es du formulaire, valider les champs obligatoires, ins├®rer dans
+la table annonces avec statut "en attente", g├®rer l'upload des photos (v├®rifier l'extension, sauvegarder
+dans static/uploads/, ins├®rer le chemin dans la table photos). Route POST /modifier/ et GET/POST
+/supprimer/ : v├®rifier que c'est bien l'annonce de l'utilisateur connect├® avant d'agir.
+Fichiers : app.py ┬À static/uploads/
+Logique de mod├®ration (valider / rejeter une annonce)
+Route accessible uniquement ├á un admin (v├®rifier session["role"] == "admin"). Afficher la liste des
+annonces en statut "en attente". Boutons pour passer le statut ├á "valid├®e" ou "rejet├®e" dans la base de
+donn├®es. Seules les annonces valid├®es apparaissent sur la page d'accueil publique.
+Fichiers : app.py ┬À templates/admin.html
+P2Personne 2 ÔÇö niveau interm├®diaire
+Ce que l'utilisateur voit ┬À Frontend + Jinja2
+niveau moyen
+Page d'accueil ÔÇö liste des annonces
+Cr├®er le template Jinja2 de la page d'accueil. Afficher toutes les annonces valid├®es sous forme de cartes
+(photo, titre, prix, wilaya, surface, prix/m┬▓). Le prix au m┬▓ se calcule directement dans le template : {{
+(annonce.prix / annonce.surface) | int }} DA/m┬▓. Ajouter un lien "voir le d├®tail" sur chaque carte.
+Fichiers : templates/index.html ┬À static/style.css
+
+--- Page 2 ---
+Page d├®tail d'une annonce
+Template qui affiche toutes les infos d'une annonce : galerie de photos, description compl├¿te, prix,
+surface, prix/m┬▓, wilaya, type (vente/location), coordonn├®es du vendeur (seulement si connect├®). Afficher
+aussi les autres annonces de ce vendeur (historique annonceur) pour la transparence des prix.
+Fichiers : templates/annonce.html
+Formulaire de publication d'annonce (pas-├á-pas)
+Cr├®er le formulaire HTML guid├® avec tous les champs : titre, type (vente/location), wilaya (liste d├®roulante
+des 58 wilayas), prix, surface, description, upload de photos (multiple). Ajouter des messages d'erreur
+Jinja2 si un champ est manquant ({{ erreurs.titre }}). Le formulaire envoie les donn├®es ├á la route /publier
+de P1.
+Fichiers : templates/publier.html ┬À static/style.css
+Barre de recherche et filtres
+Ajouter un formulaire GET en haut de la page d'accueil avec : champ texte (recherche par
+titre/description), liste d├®roulante wilaya, liste d├®roulante type (vente/location/tous), champ prix min et prix
+max. Ces filtres envoient les param├¿tres dans l'URL (?wilaya=alger&type;=vente) ÔÇö P1 se charge de la
+requ├¬te SQL c├┤t├® Flask.
+Fichiers : templates/index.html
+Pages inscription et connexion
+Deux templates simples avec des formulaires HTML : inscription (nom, email, t├®l├®phone, mot de passe,
+confirmation), connexion (email, mot de passe). Afficher les messages d'erreur Flask (identifiants
+incorrects, email d├®j├á utilis├®) via les flash messages Jinja2 : {% for msg in get_flashed_messages() %}.
+Fichiers : templates/inscription.html ┬À templates/connexion.html
+P3Personne 3 ÔÇö niveau d├®butant
+Ce qui relie tout ┬À Tests, navigation, espace perso
+moins exp├®riment├®
+Template de base (navbar + footer communs)
+Cr├®er un fichier base.html que tous les autres templates vont h├®riter avec {% extends "base.html" %}. Ce
+fichier contient : la navbar (logo, liens Accueil / Publier / Connexion / Inscription, afficher le nom de
+l'utilisateur si connect├® via {{ session.nom }}), le footer, et l'inclusion du fichier CSS. C'est le squelette de
+toute l'appli.
+Fichiers : templates/base.html ┬À static/style.css
+Espace personnel "Mes annonces"
+Template qui affiche les annonces de l'utilisateur connect├® (r├®cup├®r├®es par P1 depuis la BDD). Pour
+chaque annonce : titre, statut (en attente / valid├®e / rejet├®e) affich├® avec une couleur diff├®rente, boutons
+Modifier et Supprimer. Page accessible uniquement si connect├® (rediriger vers /connexion sinon).
+Fichiers : templates/mes_annonces.html
+Tests manuels de toutes les fonctionnalit├®s
+Tester chaque sc├®nario dans le navigateur et noter les bugs : cr├®er un compte ÔåÆ se connecter ÔåÆ publier
+une annonce avec photos ÔåÆ v├®rifier qu'elle appara├«t en "en attente" ÔåÆ se connecter en admin ÔåÆ valider
+l'annonce ÔåÆ v├®rifier qu'elle appara├«t sur l'accueil ÔåÆ rechercher avec les filtres ÔåÆ se d├®connecter.
+Remonter chaque bug ├á P1 ou P2 avec une description pr├®cise.
+Fichiers : fichier_tests.txt
+
+--- Page 3 ---
+Page d'erreur 404 personnalis├®e
+Cr├®er un template 404.html affich├® quand une page n'existe pas. Enregistrer le gestionnaire d'erreur dans
+app.py avec @app.errorhandler(404). C'est une t├óche courte mais qui finit l'application proprement.
+Message simple : "Page introuvable" avec un lien retour ├á l'accueil.
+Fichiers : templates/404.html ┬À app.py
+D├®ploiement sur le serveur Linux
+Installer Python 3 et Flask sur le serveur (pip install flask), transf├®rer les fichiers (via SCP ou cl├® USB),
+lancer l'appli avec python app.py en mode debug d├®sactiv├® (debug=False), v├®rifier que l'appli est
+accessible depuis un autre PC du r├®seau via l'IP du serveur. Prendre des captures d'├®cran pour le
+rapport.
+Fichiers : serveur Linux ┬À commandes bash
+├Ç faire ensemble (synchro obligatoire)
+ P1 cr├®e le d├®p├┤t Git, P2 et P3 clonent
+ P1 partage init_db.py d├¿s le 1er jour
+ P2 montre ses templates ├á P1 pour les relier
+ P3 remonte les bugs ├á P1/P2 avec captures
+

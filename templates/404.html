@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block title %}Page Introuvable - Immobilier DZ{% endblock %}
+
+{% block content %}
+    <h1>Erreur 404 - Page Introuvable</h1>
+    <p>Désolé, la page que vous recherchez n'existe pas ou a été déplacée.</p>
+    <p><a href="{{ url_for('index') }}">Retourner à l'accueil</a></p>
+{% endblock %}

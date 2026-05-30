@@ -1,0 +1,100 @@
+﻿Nombre de pages : 3
+--- Page 1 ---
+MLD ÔÇö MOD├êLE LOGIQUE DES DONN├ëES (MOD├êLE RELATIONNEL)
+Cl├® primaire (PK) ÔÇö soulign├®e Cl├® ├®trang├¿re (FK) PK + FK
+Table d'association (issue d'une relation N,N)
+Ôæá GESTION DES UTILISATEURS & AUTHENTIFICATION
+UTILISATEUR Entit├®
+id INTPK, AUTO_INCREMENT
+nom VARCHAR(100)NOT NULL
+email VARCHAR(150)UNIQUE, NOT NULL
+motDePasse VARCHAR(255)NOT NULL
+role ENUM{ACHETEUR, VENDEUR, ADMIN}
+dateInscription DATETIMEDEFAULT NOW()VENDEUR Sp├®cialisation
+id_utilisateur INTPK + FK ÔåÆ  UTILISATEUR
+agence VARCHAR(150)
+SIRET VARCHAR(20)UNIQUE
+ACHETEUR Sp├®cialisation
+id_utilisateur INTPK + FK ÔåÆ  UTILISATEUR
+budget DOUBLEADMIN Sp├®cialisation
+id_utilisateur INTPK + FK ÔåÆ  UTILISATEUR
+niveau INT
+permissions TEXT
+SESSION Entit├®
+token VARCHAR(255)PK
+id_utilisateur INTFK ÔåÆ  UTILISATEUR
+dateConnexion DATETIMENOT NULL
+dateExpiration DATETIME
+Ôæí ANNONCES & BIENS IMMOBILIERS
+ANNONCE Entit├®
+id INTPK, AUTO_INCREMENT
+id_vendeur INTFK ÔåÆ  VENDEUR
+id_bien INTFK ÔåÆ  BIEN_IMMOBILIER
+titre VARCHAR(200)NOT NULL
+description TEXT
+prix DOUBLENOT NULLBIEN_IMMOBILIER Entit├®
+id INTPK, AUTO_INCREMENT
+adresse VARCHAR(255)NOT NULL
+surface DOUBLE
+type ENUM{APPARTEMENT, MAISON,
+┬á┬á┬á┬á┬á┬á┬á┬á┬á┬áTERRAIN, COMMERCIAL}
+Passage MCD ÔåÆ  MLD ┬À Formalisme Merise ┬À Syst├¿me immobilier
+--- Page 2 ---
+statutENUM{BROUILLON, EN_ATTENTE,
+┬á┬á┬á┬á┬á┬á┬á┬á┬á┬áPUBLI├ëE, REJET├ëE,
+ARCHIV├ëE}
+datePubli DATE
+MEDIA Entit├®
+id INTPK, AUTO_INCREMENT
+id_annonce INTFK ÔåÆ  ANNONCE
+url VARCHAR(500)NOT NULL
+type VARCHAR(50)
+ordre INTDEFAULT 0COMPTEUR Entit├®
+id INTPK, AUTO_INCREMENT
+id_annonce INTFK ÔåÆ  ANNONCE, UNIQUE
+vues INTDEFAULT 0
+contacts INTDEFAULT 0
+prixs INTDEFAULT 0
+tauxConversion DOUBLEcalcul├®
+Ôæó MOD├ëRATION & D├ëCISIONS
+SIGNAL_DECISION Entit├®
+id INTPK, AUTO_INCREMENT
+id_annonce INTFK ÔåÆ  ANNONCE
+id_admin INTFK ÔåÆ  ADMIN
+decision ENUM{APPROUV├ëE, REJET├ëE, FLAGGED}
+motif TEXT
+dateDecision DATETIMEDEFAULT NOW()
+Ôæú RECHERCHE ÔÇö ASSOCIATION N,N ÔåÆ  TABLE INTERM├ëDIAIRE
+FILTRE Entit├®
+id INTPK, AUTO_INCREMENT
+id_acheteur INTFK ÔåÆ  ACHETEUR
+prixMin DOUBLE
+prixMax DOUBLE
+surfaceMin DOUBLE
+type ENUM{APPARTEMENT, MAISON,
+┬á┬á┬á┬á┬á┬á┬áTERRAIN, COMMERCIAL}
+zone VARCHAR(150)
+dateRecherche DATETIMEDEFAULT NOW()RECHERCHE Association N,N
+id_acheteur INTPK + FK ÔåÆ  ACHETEUR
+id_bien INTPK + FK ÔåÆ  BIEN_IMMOBILIER
+id_filtre INTFK ÔåÆ  FILTRE (nullable)
+dateRecherche DATETIMEDEFAULT NOW()
+Ôæñ NOTATION RELATIONNELLE FORMELLE
+SCH├ëMA RELATIONNEL (CL├ëS PRIMAIRES SOULIGN├ëES, CL├ëS ├ëTRANG├êRES EN #)
+UTILISATEUR (id, nom, email, motDePasse, role, dateInscription)
+--- Page 3 ---
+VENDEUR (#id_utilisateur, agence, SIRET) ÔÇö FK: id_utilisateur ÔåÆ  UTILISATEUR.id
+ACHETEUR (#id_utilisateur, budget) ÔÇö FK: id_utilisateur ÔåÆ  UTILISATEUR.id
+ADMIN (#id_utilisateur, niveau, permissions) ÔÇö FK: id_utilisateur ÔåÆ  UTILISATEUR.id
+SESSION (token, #id_utilisateur, dateConnexion, dateExpiration) ÔÇö FK ÔåÆ  UTILISATEUR.id
+BIEN_IMMOBILIER (id, adresse, surface, type)
+ANNONCE (id, #id_vendeur, #id_bien, titre, description, prix, statut, datePubli) ÔÇö FK ÔåÆ
+VENDEUR, BIEN_IMMOBILIER
+MEDIA (id, #id_annonce, url, type, ordre) ÔÇö FK ÔåÆ  ANNONCE.id
+COMPTEUR (id, #id_annonce, vues, contacts, prixs, tauxConversion) ÔÇö FK ÔåÆ  ANNONCE.id (UNIQUE)
+SIGNAL_DECISION (id, #id_annonce, #id_admin, decision, motif, dateDecision) ÔÇö FK ÔåÆ  ANNONCE,
+ADMIN
+FILTRE (id, #id_acheteur, prixMin, prixMax, surfaceMin, type, zone, dateRecherche) ÔÇö FK ÔåÆ
+ACHETEUR
+RECHERCHE (#id_acheteur, #id_bien, #id_filtre, dateRecherche) ÔÇö FK ÔåÆ  ACHETEUR, BIEN_IMMOBILIER,
+FILTRE

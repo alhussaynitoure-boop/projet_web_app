@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Publier une annonce - Immobilier DZ{% endblock %}
+
+{% block content %}
+    <h1>Publier une nouvelle annonce</h1>
+    
+    <!-- P2 va coder ici le formulaire HTML guidé (titre, type, wilayas, prix, surface, photos...) -->
+    <form action="{{ url_for('publier') }}" method="POST" enctype="multipart/form-data">
+        <p>Le formulaire d'annonce sera placé ici.</p>
+        <button type="submit">Publier</button>
+    </form>
+{% endblock %}

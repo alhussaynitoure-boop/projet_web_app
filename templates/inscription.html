@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Inscription - Immobilier DZ{% endblock %}
+
+{% block content %}
+    <h1>Créer un compte</h1>
+    
+    <!-- P2 va coder ici le formulaire d'inscription -->
+    <form action="{{ url_for('inscription') }}" method="POST">
+        <p>Le formulaire d'inscription sera placé ici.</p>
+        <button type="submit">S'inscrire</button>
+    </form>
+{% endblock %}

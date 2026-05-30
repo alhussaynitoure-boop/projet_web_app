@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion - Immobilier DZ{% endblock %}
+
+{% block content %}
+    <h1>Se connecter</h1>
+    
+    <!-- P2 va coder ici le formulaire de connexion -->
+    <form action="{{ url_for('connexion') }}" method="POST">
+        <p>Le formulaire de connexion sera placé ici.</p>
+        <button type="submit">Se connecter</button>
+    </form>
+{% endblock %}
