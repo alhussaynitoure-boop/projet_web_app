@@ -1,34 +1,44 @@
 """
 app.py — Point d'entrée principal de l'application Flask
 =========================================================
-Ce fichier configure l'application, gère les connexions à la base
-de données, et définit les routes de base (les URLs) du projet.
-
-Pour l'instant, ce fichier contient le SQUELETTE de l'application.
-Les routes font de simples "render_template" pour que tes partenaires
-P2 et P3 puissent voir et tester leurs fichiers HTML.
+MODIFICATIONS par rapport à la version précédente :
+  1. Import des Blueprints 'annonces' et 'admin'
+  2. Enregistrement des Blueprints dans l'application
+  3. Mise à jour de la route / pour afficher les annonces PUBLIEE
+  4. Mise à jour de la route /mes-annonces pour lister les annonces du vendeur
 """
 
 from flask import Flask, render_template, g, request, redirect, url_for, flash
 import sqlite3
 import os
 
-# On importe le chemin de la base de données depuis notre config
 from config import DATABASE, SECRET_KEY, UPLOAD_FOLDER
+
+# ── Imports des Blueprints ────────────────────────────────────────────────────
+from auth import auth as auth_blueprint, login_required
+from annonces import annonces as annonces_blueprint
+from admin import admin as admin_blueprint
+
 
 # ── Initialisation de l'application Flask ──────────────────────────────────────
 app = Flask(__name__)
 app.config['SECRET_KEY'] = SECRET_KEY
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# On s'assure que le dossier d'upload existe sur le serveur
+# On stocke aussi ALLOWED_EXTENSIONS dans app.config pour que les Blueprints y accèdent
+from config import ALLOWED_EXTENSIONS
+app.config['ALLOWED_EXTENSIONS'] = ALLOWED_EXTENSIONS
+
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
+# ── Enregistrement des Blueprints ─────────────────────────────────────────────
+app.register_blueprint(auth_blueprint)
+app.register_blueprint(annonces_blueprint)
+app.register_blueprint(admin_blueprint)
+
+
 # ── Gestion de la Connexion Base de Données (SQLite) ──────────────────────────
-# Dans Flask, on utilise l'objet spécial "g" (global context) pour stocker
-# la connexion à la base de données pendant la durée d'une requête HTTP.
-# Cela évite d'ouvrir/fermer la base de données à chaque fonction.
 
 def get_db():
     """
@@ -37,122 +47,182 @@ def get_db():
     """
     db = getattr(g, '_database', None)
     if db is None:
-        # sqlite3.connect(...) établit le lien avec le fichier app.db
         db = g._database = sqlite3.connect(DATABASE)
-        
-        # On configure la connexion pour retourner des dictionnaires
-        # à la place de simples tuples. Exemple : au lieu de récupérer (1, "Ali"),
-        # on récupère {"id": 1, "nom": "Ali"}. C'est beaucoup plus pratique !
         db.row_factory = sqlite3.Row
-        
-        # /!\ RAPPEL : Activer la vérification des clés étrangères à chaque connexion !
         db.execute("PRAGMA foreign_keys = ON;")
-        
     return db
 
 
 @app.teardown_appcontext
 def close_connection(exception):
     """
-    Ferme automatiquement la connexion à la base de données à la toute fin
-    de chaque requête HTTP (qu'il y ait eu une erreur ou pas).
+    Ferme automatiquement la connexion à la base de données à la fin
+    de chaque requête HTTP.
     """
     db = getattr(g, '_database', None)
     if db is not None:
         db.close()
 
 
-# ── Routes de base pour la navigation (Squelette pour P2 et P3) ───────────────
+# ── Route : Page d'accueil (/) ────────────────────────────────────────────────
 
 @app.route('/')
 def index():
     """
-    Page d'accueil : Affiche la liste des annonces validées.
-    (Tâche principale de P2)
+    Page d'accueil : Affiche la liste des annonces validées (PUBLIEE).
+    
+    On fait une jointure pour récupérer les infos du bien et du vendeur.
+    On récupère aussi la première photo de chaque annonce.
     """
-    # Pour l'instant, on envoie une liste vide pour ne pas faire planter le template
-    annonces = []
-    return render_template('index.html', annonces=annonces)
+    db = get_db()
+    
+    # Récupération des annonces publiées
+    annonces = db.execute(
+        """
+        SELECT 
+            a.id,
+            a.titre,
+            a.description,
+            a.prix,
+            a.datePubli,
+            b.adresse,
+            b.surface,
+            b.type as type_bien,
+            u.nom as vendeur_nom
+        FROM ANNONCE a
+        JOIN BIEN_IMMOBILIER b ON a.id_bien = b.id
+        JOIN VENDEUR v ON a.id_vendeur = v.id_utilisateur
+        JOIN UTILISATEUR u ON v.id_utilisateur = u.id
+        WHERE a.statut = 'PUBLIEE'
+        ORDER BY a.datePubli DESC
+        """
+    ).fetchall()
+    
+    # Récupération de la première photo de chaque annonce
+    photos = {}
+    if annonces:
+        ids = [a['id'] for a in annonces]
+        placeholders = ', '.join('?' * len(ids))
+        
+        resultats_photos = db.execute(
+            f"""
+            SELECT id_annonce, url
+            FROM MEDIA
+            WHERE id_annonce IN ({placeholders})
+            AND ordre = 0
+            """,
+            tuple(ids)
+        ).fetchall()
+        
+        for p in resultats_photos:
+            photos[p['id_annonce']] = p['url']
+    
+    return render_template('index.html', annonces=annonces, photos=photos)
 
+
+# ── Route : Détail d'une annonce ──────────────────────────────────────────────
 
 @app.route('/annonce/<int:annonce_id>')
 def detail_annonce(annonce_id):
     """
     Page de détail d'une annonce spécifique.
-    (Tâche principale de P2)
+    Affiche toutes les infos + photos + historique du vendeur.
     """
-    return render_template('annonce.html', annonce_id=annonce_id)
-
-
-@app.route('/publier', methods=['GET', 'POST'])
-def publier():
-    """
-    Formulaire et logique de publication d'une annonce.
-    (Tâche partagée entre P1 pour le traitement et P2 pour le formulaire)
-    """
-    if request.method == 'POST':
-        # Plus tard, on mettra ici ton code de traitement du formulaire
-        flash("Annonce reçue (simulation) !", "success")
+    db = get_db()
+    
+    # Récupération de l'annonce avec ses infos liées
+    annonce = db.execute(
+        """
+        SELECT 
+            a.*,
+            b.adresse, b.surface, b.type as type_bien,
+            u.nom as vendeur_nom, u.email as vendeur_email, u.telephone
+        FROM ANNONCE a
+        JOIN BIEN_IMMOBILIER b ON a.id_bien = b.id
+        JOIN VENDEUR v ON a.id_vendeur = v.id_utilisateur
+        JOIN UTILISATEUR u ON v.id_utilisateur = u.id
+        WHERE a.id = ? AND a.statut = 'PUBLIEE'
+        """,
+        (annonce_id,)
+    ).fetchone()
+    
+    if annonce is None:
+        flash("Annonce introuvable ou non publiée.", "warning")
         return redirect(url_for('index'))
-        
-    return render_template('publier.html')
+    
+    # Photos de l'annonce
+    medias = db.execute(
+        "SELECT url, ordre FROM MEDIA WHERE id_annonce = ? ORDER BY ordre ASC",
+        (annonce_id,)
+    ).fetchall()
+    
+    # Autres annonces du même vendeur (historique)
+    historique = db.execute(
+        """
+        SELECT a.id, a.titre, a.prix, a.statut, a.datePubli
+        FROM ANNONCE a
+        WHERE a.id_vendeur = ? AND a.id != ? AND a.statut = 'PUBLIEE'
+        ORDER BY a.datePubli DESC
+        LIMIT 5
+        """,
+        (annonce['id_vendeur'], annonce_id)
+    ).fetchall()
+    
+    return render_template('annonce.html', 
+                           annonce=annonce, 
+                           medias=medias, 
+                           historique=historique)
 
 
-# ── Routes d'Authentification (Tâche 3 de P1) ─────────────────────────────────
-
-@app.route('/inscription', methods=['GET', 'POST'])
-def inscription():
-    """
-    Page d'inscription pour créer un nouveau compte.
-    """
-    if request.method == 'POST':
-        # Plus tard, traitement de l'inscription
-        return redirect(url_for('connexion'))
-    return render_template('inscription.html')
-
-
-@app.route('/connexion', methods=['GET', 'POST'])
-def connexion():
-    """
-    Page de connexion à l'espace membre.
-    """
-    if request.method == 'POST':
-        # Plus tard, traitement de la connexion
-        return redirect(url_for('index'))
-    return render_template('connexion.html')
-
-
-@app.route('/deconnexion')
-def deconnexion():
-    """
-    Déconnexion de l'utilisateur (nettoyage de la session).
-    """
-    flash("Vous avez été déconnecté.", "info")
-    return redirect(url_for('index'))
-
-
-# ── Espace Personnel et Modération (P3 et P1) ─────────────────────────────────
+# ── Route : Mes annonces (espace personnel) ───────────────────────────────────
 
 @app.route('/mes-annonces')
+@login_required
 def mes_annonces():
     """
-    Espace personnel de l'utilisateur connecté contenant ses propres annonces.
-    (Tâche de P3)
+    Espace personnel : liste les annonces de l'utilisateur connecté.
+    Accessible uniquement aux vendeurs (les acheteurs n'ont pas d'annonces).
     """
-    return render_template('mes_annonces.html')
+    db = get_db()
+    user_id = session.get('user_id')
+    
+    # Vérification que c'est bien un vendeur
+    if session.get('role') != 'VENDEUR':
+        flash("Cette page est réservée aux vendeurs.", "warning")
+        return redirect(url_for('index'))
+    
+    # Récupération de toutes les annonces du vendeur (tous statuts)
+    annonces = db.execute(
+        """
+        SELECT 
+            a.id,
+            a.titre,
+            a.prix,
+            a.statut,
+            a.datePubli,
+            b.adresse,
+            b.surface
+        FROM ANNONCE a
+        JOIN BIEN_IMMOBILIER b ON a.id_bien = b.id
+        WHERE a.id_vendeur = ?
+        ORDER BY 
+            CASE a.statut
+                WHEN 'EN_ATTENTE' THEN 1
+                WHEN 'PUBLIEE' THEN 2
+                WHEN 'REJETEE' THEN 3
+                WHEN 'ARCHIVEE' THEN 4
+                ELSE 5
+            END,
+            a.datePubli DESC
+        """,
+        (user_id,)
+        # CASE ... END = tri personnalisé : EN_ATTENTE d'abord, puis PUBLIEE, etc.
+    ).fetchall()
+    
+    return render_template('mes_annonces.html', annonces=annonces)
 
 
-@app.route('/admin')
-def admin():
-    """
-    Espace de modération réservé aux administrateurs.
-    (Tâche 5 de P1)
-    """
-    # Plus tard, on ajoutera une vérification de sécurité (session["role"] == "admin")
-    return render_template('admin.html')
-
-
-# ── Gestionnaire d'erreur 404 personnalisé (Tâche de P3) ──────────────────────
+# ── Gestionnaire d'erreur 404 personnalisé ────────────────────────────────────
 
 @app.errorhandler(404)
 def page_not_found(e):
@@ -164,6 +234,4 @@ def page_not_found(e):
 
 # ── Démarrage du serveur de développement ──────────────────────────────────────
 if __name__ == '__main__':
-    # debug=True permet de recharger le serveur automatiquement à chaque modif de code
-    # et d'afficher les erreurs directement dans le navigateur.
     app.run(debug=True, port=5000)
