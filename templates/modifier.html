@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Modifier l'annonce{% endblock %}
+{% block content %}
+<h1>✏️ Modifier l'annonce</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <label>Titre *</label>
+    <input type="text" name="titre" value="{{ annonce.titre }}" required>
+
+    <label>Description</label>
+    <textarea name="description" rows="4">{{ annonce.description or '' }}</textarea>
+
+    <label>Prix (DA) *</label>
+    <input type="number" name="prix" value="{{ annonce.prix }}" required>
+
+    <label>Surface (m²) *</label>
+    <input type="number" name="surface" value="{{ annonce.surface }}" required>
+
+    <label>Adresse complète *</label>
+    <input type="text" name="adresse" value="{{ annonce.adresse }}" required>
+
+    <label>Type de bien *</label>
+    <select name="type" required>
+        <option value="APPARTEMENT" {% if annonce.type_bien=='APPARTEMENT' %}selected{% endif %}>Appartement</option>
+        <option value="MAISON" {% if annonce.type_bien=='MAISON' %}selected{% endif %}>Maison</option>
+        <option value="TERRAIN" {% if annonce.type_bien=='TERRAIN' %}selected{% endif %}>Terrain</option>
+        <option value="COMMERCIAL" {% if annonce.type_bien=='COMMERCIAL' %}selected{% endif %}>Commercial</option>
+    </select>
+
+    <label>Ajouter des photos (optionnel)</label>
+    <input type="file" name="photos" multiple accept="image/png,image/jpeg,image/jpg,image/webp">
+
+    <button type="submit">💾 Enregistrer les modifications</button>
+</form>
+
+<p><a href="{{ url_for('mes_annonces') }}">← Retour à mes annonces</a></p>
+{% endblock %}

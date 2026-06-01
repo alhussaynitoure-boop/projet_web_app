@@ -1,13 +1,32 @@
 {% extends "base.html" %}
-
-{% block title %}Inscription - Immobilier DZ{% endblock %}
-
+{% block title %}Inscription{% endblock %}
 {% block content %}
-    <h1>Créer un compte</h1>
-    
-    <!-- P2 va coder ici le formulaire d'inscription -->
-    <form action="{{ url_for('inscription') }}" method="POST">
-        <p>Le formulaire d'inscription sera placé ici.</p>
-        <button type="submit">S'inscrire</button>
-    </form>
+<h1>📝 Créer un compte</h1>
+
+<form method="POST">
+    <label>Nom complet *</label>
+    <input type="text" name="nom" required placeholder="Votre nom">
+
+    <label>Email *</label>
+    <input type="email" name="email" required placeholder="votre@email.com">
+
+    <label>Téléphone</label>
+    <input type="text" name="telephone" placeholder="05 XX XX XX XX">
+
+    <label>Mot de passe *</label>
+    <input type="password" name="motDePasse" required placeholder="Min. 6 caractères">
+
+    <label>Confirmer le mot de passe *</label>
+    <input type="password" name="confirmerMotDePasse" required placeholder="Répétez le mot de passe">
+
+    <label>Type de compte *</label>
+    <select name="role" required>
+        <option value="ACHETEUR">Acheteur (je cherche un bien)</option>
+        <option value="VENDEUR">Vendeur (je veux publier)</option>
+    </select>
+
+    <button type="submit">S'inscrire</button>
+</form>
+
+<p>Déjà un compte ? <a href="{{ url_for('auth.connexion') }}">Se connecter</a></p>
 {% endblock %}

@@ -1,13 +1,37 @@
 {% extends "base.html" %}
-
-{% block title %}Publier une annonce - Immobilier DZ{% endblock %}
-
+{% block title %}Publier une annonce{% endblock %}
 {% block content %}
-    <h1>Publier une nouvelle annonce</h1>
-    
-    <!-- P2 va coder ici le formulaire HTML guidé (titre, type, wilayas, prix, surface, photos...) -->
-    <form action="{{ url_for('publier') }}" method="POST" enctype="multipart/form-data">
-        <p>Le formulaire d'annonce sera placé ici.</p>
-        <button type="submit">Publier</button>
-    </form>
+<h1>➕ Publier une annonce</h1>
+
+<form method="POST" enctype="multipart/form-data">
+    <label>Titre *</label>
+    <input type="text" name="titre" value="{{ titre or '' }}" required placeholder="Ex: Bel appartement Alger centre">
+
+    <label>Description</label>
+    <textarea name="description" rows="4" placeholder="Décrivez votre bien...">{{ description or '' }}</textarea>
+
+    <label>Prix (DA) *</label>
+    <input type="number" name="prix" value="{{ prix or '' }}" required placeholder="3500000">
+
+    <label>Surface (m²) *</label>
+    <input type="number" name="surface" value="{{ surface or '' }}" required placeholder="120">
+
+    <label>Adresse complète *</label>
+    <input type="text" name="adresse" value="{{ adresse or '' }}" required placeholder="12 Rue Bab El Oued, Alger">
+
+    <label>Type de bien *</label>
+    <select name="type" required>
+        <option value="">-- Choisir --</option>
+        <option value="APPARTEMENT" {% if type_bien=='APPARTEMENT' %}selected{% endif %}>Appartement</option>
+        <option value="MAISON" {% if type_bien=='MAISON' %}selected{% endif %}>Maison</option>
+        <option value="TERRAIN" {% if type_bien=='TERRAIN' %}selected{% endif %}>Terrain</option>
+        <option value="COMMERCIAL" {% if type_bien=='COMMERCIAL' %}selected{% endif %}>Commercial</option>
+    </select>
+
+    <label>Photos (plusieurs possibles)</label>
+    <input type="file" name="photos" multiple accept="image/png,image/jpeg,image/jpg,image/webp">
+    <small>Formats acceptés : PNG, JPG, JPEG, WEBP</small>
+
+    <button type="submit">📤 Publier l'annonce</button>
+</form>
 {% endblock %}
