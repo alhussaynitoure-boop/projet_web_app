@@ -11,11 +11,30 @@
 
     <header>
         <nav>
-            <!-- Navbar à coder par P3 -->
-            <a href="{{ url_for('index') }}">Accueil</a> | 
-            <a href="{{ url_for('publier') }}">Publier une annonce</a> |
-            <a href="{{ url_for('connexion') }}">Connexion</a> |
-            <a href="{{ url_for('inscription') }}">Inscription</a>
+             <a href="{{ url_for('index') }}">Accueil</a> |
+
+   <a href="{{ url_for('annonces.publier') }}">Publier une annonce</a>
+    {% if session.get('user_id') %}
+
+        <a href="{{ url_for('mes_annonces') }}">
+            Mes annonces
+        </a> |
+
+        <span>Bonjour {{ session.nom }}</span> |
+
+        <a href="{{ url_for('auth.deconnexion') }}">
+            Déconnexion
+        </a>
+
+    {% else %}
+
+        <a href="{{ url_for('auth.connexion') }}">Connexion</a>
+
+        <a href="{{ url_for('auth.inscription') }}">
+            Inscription
+        </a>
+
+    {% endif %}
         </nav>
     </header>
 
