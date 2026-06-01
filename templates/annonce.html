@@ -1,10 +1,66 @@
 {% extends "base.html" %}
-
-{% block title %}Détail de l'annonce - Immobilier DZ{% endblock %}
-
+{% block title %}{{ annonce.titre }}{% endblock %}
 {% block content %}
-    <h1>Détail de l'annonce n°{{ annonce_id }}</h1>
-    
-    <!-- P2 va coder ici les galeries d'images, descriptions, prix, etc. -->
-    <p>Cette page affichera toutes les informations d'un bien immobilier.</p>
+<h1>{{ annonce.titre }}</h1>
+
+<h3>📷 Photos</h3>
+{% for media in medias %}
+<img src="{{ media.url }}" alt="Photo {{ loop.index }}">
+{% else %}
+<p>Aucune photo</p>
+{% endfor %}
+
+<h3>ℹ️ Informations</h3>
+<table>
+    <tr>
+        <th>Prix</th>
+        <td>{{ annonce.prix|int }} DA</td>
+    </tr>
+    <tr>
+        <th>Surface</th>
+        <td>{{ annonce.surface|int }} m²</td>
+    </tr>
+    <tr>
+        <th>Type</th>
+        <td>{{ annonce.type_bien }}</td>
+    </tr>
+    <tr>
+        <th>Adresse</th>
+        <td>{{ annonce.adresse }}</td>
+    </tr>
+    <tr>
+        <th>Description</th>
+        <td>{{ annonce.description or 'Non renseignée' }}</td>
+    </tr>
+    <tr>
+        <th>Date de publication</th>
+        <td>{{ annonce.datePubli }}</td>
+    </tr>
+    <tr>
+        <th>Statut</th>
+        <td>{{ annonce.statut }}</td>
+    </tr>
+</table>
+
+<h3>👤 Vendeur</h3>
+<table>
+    <tr>
+        <th>Nom</th>
+        <td>{{ annonce.vendeur_nom }}</td>
+    </tr>
+    <tr>
+        <th>Email</th>
+        <td>{{ annonce.vendeur_email }}</td>
+    </tr>
+</table>
+
+<h3>📋 Autres annonces de ce vendeur</h3>
+{% for h in historique %}
+<p><a href="{{ url_for('detail_annonce', annonce_id=h.id) }}">{{ h.titre }}</a> — {{ h.prix|int }} DA ({{ h.statut }})
+</p>
+{% else %}
+<p>Aucune autre annonce publiée</p>
+{% endfor %}
+
+<p><a href="{{ url_for('index') }}">← Retour à l'accueil</a></p>
 {% endblock %}

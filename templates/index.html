@@ -1,15 +1,28 @@
 {% extends "base.html" %}
-
-{% block title %}Accueil - Immobilier DZ{% endblock %}
-
+{% block title %}Accueil{% endblock %}
 {% block content %}
-    <h1>Annonces Immobilières</h1>
-    <p>Bienvenue sur notre plateforme d'annonces.</p>
-    
-    <!-- P2 va coder ici la barre de recherche et les filtres -->
-    
-    <div class="annonces-list">
-        <!-- P2 va coder ici l'affichage des annonces sous forme de cartes -->
-        <p>Aucune annonce pour le moment.</p>
-    </div>
+<h1>Annonces disponibles</h1>
+<p>{{ annonces|length }} annonce(s) trouvée(s)</p>
+
+{% for annonce in annonces %}
+<div class="card">
+    {% if annonce.id in photos %}
+    <img src="{{ photos[annonce.id] }}" alt="Photo">
+    {% else %}
+    <p><em>📷 Aucune photo</em></p>
+    {% endif %}
+    <h3><a href="{{ url_for('detail_annonce', annonce_id=annonce.id) }}">{{ annonce.titre }}</a></h3>
+    <p><strong>{{ annonce.prix|int }} DA</strong> — {{ annonce.surface|int }} m² — {{ annonce.type_bien }}</p>
+    <p>📍 {{ annonce.adresse }}</p>
+    <p>👤 Vendeur : {{ annonce.vendeur_nom }}</p>
+    <p>📅 {{ annonce.datePubli }}</p>
+</div>
+{% else %}
+<div class="card">
+    <p>Aucune annonce publiée pour le moment.</p>
+    {% if session.role == 'VENDEUR' %}
+    <a href="{{ url_for('annonces.publier') }}">➕ Publier une annonce</a>
+    {% endif %}
+</div>
+{% endfor %}
 {% endblock %}

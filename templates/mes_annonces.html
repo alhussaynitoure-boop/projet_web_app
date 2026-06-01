@@ -1,13 +1,43 @@
 {% extends "base.html" %}
-
-{% block title %}Mes Annonces - Immobilier DZ{% endblock %}
-
+{% block title %}Mes annonces{% endblock %}
 {% block content %}
-    <h1>Mon Espace Personnel</h1>
-    <p>Retrouvez ici toutes vos publications et leur statut.</p>
-    
-    <!-- P3 va coder ici l'affichage des annonces de l'utilisateur connecté -->
-    <div class="user-annonces">
-        <p>Vous n'avez publié aucune annonce.</p>
-    </div>
+<h1>📋 Mes annonces</h1>
+<a href="{{ url_for('annonces.publier') }}"><button>➕ Nouvelle annonce</button></a>
+
+{% for annonce in annonces %}
+<div class="card">
+    <h3>{{ annonce.titre }}</h3>
+    <p><strong>{{ annonce.prix|int }} DA</strong> — {{ annonce.surface|int }} m²</p>
+    <p>📍 {{ annonce.adresse }}</p>
+    <p>
+        Statut :
+        {% if annonce.statut == 'EN_ATTENTE' %}
+        <span class="badge badge-warning">⏳ En attente</span>
+        {% elif annonce.statut == 'PUBLIEE' %}
+        <span class="badge badge-success">✅ Publiée</span>
+        {% elif annonce.statut == 'REJETEE' %}
+        <span class="badge badge-danger">❌ Rejetée</span>
+        {% elif annonce.statut == 'ARCHIVEE' %}
+        <span class="badge badge-secondary">📦 Archivée</span>
+        {% else %}
+        <span class="badge badge-secondary">{{ annonce.statut }}</span>
+        {% endif %}
+    </p>
+    <p>📅 {{ annonce.datePubli }}</p>
+
+    {% if annonce.statut in ['EN_ATTENTE', 'BROUILLON'] %}
+    <a href="{{ url_for('annonces.modifier', annonce_id=annonce.id) }}"><button>✏️ Modifier</button></a>
+    {% endif %}
+
+    <form class="inline-form" action="{{ url_for('annonces.supprimer', annonce_id=annonce.id) }}" method="POST"
+        onsubmit="return confirm('Supprimer cette annonce ?');">
+        <button type="submit" class="danger">🗑️ Supprimer</button>
+    </form>
+</div>
+{% else %}
+<div class="card">
+    <p>Vous n'avez publié aucune annonce.</p>
+    <a href="{{ url_for('annonces.publier') }}"><button>➕ Publier une annonce</button></a>
+</div>
+{% endfor %}
 {% endblock %}

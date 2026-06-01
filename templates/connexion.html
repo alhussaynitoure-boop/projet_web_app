@@ -1,13 +1,17 @@
 {% extends "base.html" %}
-
-{% block title %}Connexion - Immobilier DZ{% endblock %}
-
+{% block title %}Connexion{% endblock %}
 {% block content %}
-    <h1>Se connecter</h1>
-    
-    <!-- P2 va coder ici le formulaire de connexion -->
-    <form action="{{ url_for('connexion') }}" method="POST">
-        <p>Le formulaire de connexion sera placé ici.</p>
-        <button type="submit">Se connecter</button>
-    </form>
+<h1>🔑 Se connecter</h1>
+
+<form method="POST">
+    <label>Email *</label>
+    <input type="email" name="email" required placeholder="votre@email.com">
+
+    <label>Mot de passe *</label>
+    <input type="password" name="motDePasse" required placeholder="Votre mot de passe">
+
+    <button type="submit">Connexion</button>
+</form>
+
+<p>Pas de compte ? <a href="{{ url_for('auth.inscription') }}">S'inscrire</a></p>
 {% endblock %}
