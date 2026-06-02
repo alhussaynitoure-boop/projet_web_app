@@ -1,14 +1,10 @@
-{% extends "base.html" %}
-{% block title %}Panel Admin{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Panel Admin{% endblock %} {% block content %}
 <h1>🔧 Panel de modération</h1>
 <p><strong>{{ total }}</strong> annonce(s) en attente de validation</p>
 
 {% if total == 0 %}
 <div class="alert alert-info">🎉 Aucune annonce en attente ! Tout est à jour.</div>
-{% endif %}
-
-{% for annonce in annonces %}
+{% endif %} {% for annonce in annonces %}
 <div class="card">
     <h3>{{ annonce.titre }}</h3>
     <p><strong>{{ annonce.prix|int }} DA</strong> — {{ annonce.surface|int }} m² — {{ annonce.type_bien }}</p>
@@ -18,11 +14,8 @@
     <p>📅 Publiée le {{ annonce.datePubli }}</p>
 
     <h4>Photos</h4>
-    {% if annonce.id in photos %}
-    {% for url in photos[annonce.id] %}
-    <img src="{{ url }}" alt="Photo">
-    {% endfor %}
-    {% else %}
+    {% if annonce.id in photos %} {% for url in photos[annonce.id] %}
+    <img src="{{ url }}" alt="Photo"> {% endfor %} {% else %}
     <p><em>Aucune photo</em></p>
     {% endif %}
 
@@ -33,10 +26,8 @@
     </form>
 
     <form class="inline-form" action="{{ url_for('admin.rejeter', annonce_id=annonce.id) }}" method="POST">
-        <input type="text" name="motif" placeholder="Motif du rejet *" required
-            style="display: inline-block; width: 250px;">
+        <input type="text" name="motif" placeholder="Motif du rejet *" required style="display: inline-block; width: 250px;">
         <button type="submit" class="danger">❌ Rejeter</button>
     </form>
 </div>
-{% endfor %}
-{% endblock %}
+{% endfor %} {% endblock %}

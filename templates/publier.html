@@ -1,37 +1,1620 @@
-{% extends "base.html" %}
-{% block title %}Publier une annonce{% endblock %}
-{% block content %}
-<h1>➕ Publier une annonce</h1>
+<style>
+    /* ===== RESET & BASE ===== */
+    
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+    
+    body {
+        background: #0d0d0d;
+        color: #e0e0e0;
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        font-size: 14px;
+        min-height: 100vh;
+    }
+    /* ===== NAVBAR ===== */
+    
+    .navbar {
+        background: #111;
+        border-bottom: 1px solid #222;
+        padding: 0 32px;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+    }
+    
+    .navbar-brand {
+        font-size: 20px;
+        font-weight: 700;
+        background: linear-gradient(90deg, #00d4d4, #ff3c7e);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-decoration: none;
+    }
+    
+    .navbar-links {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        list-style: none;
+    }
+    
+    .navbar-links a {
+        color: #aaa;
+        text-decoration: none;
+        font-size: 14px;
+        transition: color 0.2s;
+    }
+    
+    .navbar-links a:hover {
+        color: #fff;
+    }
+    
+    .navbar-links a.active {
+        color: #ff3c7e;
+        border-bottom: 2px solid #ff3c7e;
+        padding-bottom: 2px;
+    }
+    
+    .navbar-icons {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .navbar-avatar {
+        width: 34px;
+        height: 34px;
+        background: #333;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #aaa;
+        cursor: pointer;
+    }
+    
+    .navbar-bell {
+        color: #aaa;
+        cursor: pointer;
+        font-size: 18px;
+    }
+    /* ===== PAGE LAYOUT ===== */
+    
+    .page-wrapper {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 24px 120px;
+    }
+    
+    .page-header {
+        margin-bottom: 24px;
+    }
+    
+    .page-header h1 {
+        font-size: 20px;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 4px;
+    }
+    
+    .page-header p {
+        color: #888;
+        font-size: 13px;
+    }
+    /* ===== STEPPER ===== */
+    
+    .stepper {
+        display: flex;
+        gap: 0;
+        margin-bottom: 28px;
+        border-bottom: 1px solid #222;
+        padding-bottom: 0;
+    }
+    
+    .step {
+        flex: 1;
+        padding-bottom: 10px;
+        padding-right: 8px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        color: #555;
+        border: none;
+        border-bottom: 2px solid transparent;
+        background: none;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: left;
+    }
+    
+    .step.active {
+        color: #00d4d4;
+        border-bottom: 2px solid #00d4d4;
+    }
+    
+    .step:hover:not(.active) {
+        color: #aaa;
+        border-bottom: 2px solid #444;
+    }
+    /* ===== MAIN GRID ===== */
+    
+    .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 280px;
+        gap: 20px;
+        align-items: start;
+    }
+    
+    .left-col {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    /* ===== CARDS ===== */
+    
+    .card {
+        background: #161616;
+        border: 1px solid #252525;
+        border-radius: 14px;
+        padding: 20px;
+    }
+    
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+    
+    .card-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #fff;
+    }
+    
+    .card-title-icon {
+        width: 30px;
+        height: 30px;
+        background: #1e2a2a;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #00d4d4;
+        font-size: 14px;
+    }
+    /* ===== FORM FIELDS ===== */
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+    
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .form-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #777;
+    }
+    
+    .form-control {
+        background: #111;
+        border: 1px solid #2a2a2a;
+        border-radius: 10px;
+        color: #e0e0e0;
+        padding: 11px 14px;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+        width: 100%;
+        appearance: none;
+    }
+    
+    .form-control:focus {
+        border-color: #00d4d4;
+    }
+    
+    .form-control::placeholder {
+        color: #444;
+    }
+    
+    .select-wrapper {
+        position: relative;
+    }
+    
+    .select-wrapper::after {
+        content: '▾';
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #555;
+        pointer-events: none;
+        font-size: 12px;
+    }
+    
+    .select-wrapper select.form-control {
+        padding-right: 30px;
+        cursor: pointer;
+    }
+    
+    .input-suffix {
+        position: relative;
+    }
+    
+    .input-suffix input {
+        padding-right: 40px;
+    }
+    
+    .suffix-label {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #555;
+        font-size: 13px;
+    }
+    /* ===== ZONE DE POSITIONNEMENT — BOUTONS CLIQUABLES ===== */
+    
+    .price-zone-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #777;
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .price-zone-row {
+        display: flex;
+        gap: 0;
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid #2a2a2a;
+        margin-bottom: 14px;
+    }
+    
+    .zone-link {
+        flex: 1;
+        padding: 10px 6px;
+        background: #111;
+        border-right: 1px solid #2a2a2a;
+        color: #666;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        font-family: inherit;
+        line-height: 1.4;
+        text-decoration: none;
+        display: block;
+    }
+    
+    .zone-link:last-child {
+        border-right: none;
+    }
+    
+    .zone-link:hover {
+        background: #1a1a1a;
+        color: #ccc;
+        text-decoration: none;
+    }
+    
+    .zone-link .zone-icon {
+        display: block;
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+    
+    .zone-link .zone-sub {
+        display: block;
+        font-size: 10px;
+        font-weight: 400;
+        opacity: 0.6;
+        margin-top: 2px;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+    /* États actifs selon zone */
+    
+    .zone-link.zone-under.active {
+        background: #0a2410;
+        border-color: #00cc88;
+        color: #00cc88;
+        box-shadow: inset 0 -2px 0 #00cc88;
+    }
+    
+    .zone-link.zone-market.active {
+        background: #0d2a2a;
+        border-color: #00d4d4;
+        color: #00d4d4;
+        box-shadow: inset 0 -2px 0 #00d4d4;
+    }
+    
+    .zone-link.zone-over.active {
+        background: #2a1400;
+        border-color: #f97316;
+        color: #f97316;
+        box-shadow: inset 0 -2px 0 #f97316;
+    }
+    /* ===== BLOC FEEDBACK DzairAI ===== */
+    
+    .ai-panel {
+        border-radius: 10px;
+        padding: 14px;
+        font-size: 12px;
+        line-height: 1.6;
+        margin-bottom: 14px;
+        display: none;
+        transition: all 0.3s;
+    }
+    
+    .ai-panel.visible {
+        display: block;
+    }
+    
+    .ai-panel.green {
+        background: #0a2410;
+        border: 1px solid #00cc88;
+        color: #a0f0c8;
+    }
+    
+    .ai-panel.cyan {
+        background: #0d2a2a;
+        border: 1px solid #00d4d4;
+        color: #a0f0f0;
+    }
+    
+    .ai-panel.orange {
+        background: #2a1400;
+        border: 1px solid #f97316;
+        color: #ffd0a0;
+    }
+    
+    .ai-panel-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 13px;
+        margin-bottom: 6px;
+    }
+    
+    .ai-panel-header .ai-logo {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        opacity: 0.8;
+    }
+    
+    .ai-panel-body {
+        margin-bottom: 8px;
+    }
+    
+    .ai-panel-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 11px;
+        opacity: 0.7;
+    }
+    /* ===== ESTIMATION BADGE ===== */
+    
+    .estimation-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 4px;
+    }
+    
+    .estimation-badge {
+        background: #1e1e1e;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 12px;
+        color: #888;
+        flex: 1;
+    }
+    
+    .estimation-badge .badge-title {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #555;
+        margin-bottom: 4px;
+    }
+    
+    .estimation-badge .badge-value {
+        font-size: 18px;
+        font-weight: 700;
+        color: #00d4d4;
+        margin-bottom: 2px;
+    }
+    
+    .estimation-badge .badge-diff {
+        font-size: 11px;
+        font-weight: 600;
+        margin-bottom: 3px;
+        transition: color 0.3s;
+    }
+    
+    .estimation-badge .badge-source {
+        font-size: 10px;
+        color: #444;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    /* ===== STICKY BOTTOM BAR ===== */
+    
+    .bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #111;
+        border-top: 1px solid #222;
+        padding: 14px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 99;
+    }
+    
+    .btn-back {
+        background: none;
+        border: none;
+        color: #aaa;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.2s;
+    }
+    
+    .btn-back:hover {
+        color: #fff;
+    }
+    
+    .bottom-actions {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .btn-draft {
+        background: transparent;
+        border: 1.5px solid #00d4d4;
+        border-radius: 28px;
+        color: #00d4d4;
+        padding: 10px 24px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-draft:hover {
+        background: rgba(0, 212, 212, 0.08);
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #ff3c7e, #c2185b);
+        border: none;
+        border-radius: 28px;
+        color: #fff;
+        padding: 10px 28px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 20px rgba(255, 60, 126, 0.35);
+        transition: opacity 0.2s, transform 0.1s;
+    }
+    
+    .btn-submit:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
+    /* ===== SECTION VISIBILITY — stepper ===== */
+    
+    .section {
+        display: none;
+    }
+    
+    .section.visible {
+        display: block;
+    }
+    
+    .sidebar-section {
+        display: none;
+    }
+    
+    .sidebar-section.visible {
+        display: block;
+    }
+    /* ===== PIECE BUTTONS ===== */
+    
+    .pieces-group {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .piece-btn {
+        width: 48px;
+        height: 40px;
+        background: #111;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        color: #888;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .piece-btn.active {
+        background: #0d2a2a;
+        border-color: #00d4d4;
+        color: #00d4d4;
+    }
+    
+    .piece-btn:hover:not(.active) {
+        border-color: #444;
+        color: #ccc;
+    }
+    /* ===== UPLOAD ZONE ===== */
+    
+    .upload-badge {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #00d4d4;
+    }
+    
+    .upload-badge::before {
+        content: '●';
+        font-size: 8px;
+    }
+    
+    .upload-zone {
+        border: 1.5px dashed #333;
+        border-radius: 12px;
+        padding: 40px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: border-color 0.2s, background 0.2s;
+        background: #111;
+        margin-bottom: 12px;
+    }
+    
+    .upload-zone:hover {
+        border-color: #00d4d4;
+        background: #0d1f1f;
+    }
+    
+    .upload-icon {
+        font-size: 28px;
+        color: #00d4d4;
+        margin-bottom: 10px;
+    }
+    
+    .upload-zone p {
+        color: #bbb;
+        font-size: 14px;
+        margin-bottom: 4px;
+    }
+    
+    .upload-zone p strong {
+        color: #fff;
+    }
+    
+    .upload-zone small {
+        color: #555;
+        font-size: 12px;
+    }
+    
+    .btn-select-files {
+        background: transparent;
+        border: 1.5px solid #00d4d4;
+        border-radius: 24px;
+        color: #00d4d4;
+        padding: 9px 24px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        margin-top: 14px;
+        transition: background 0.2s;
+    }
+    
+    .btn-select-files:hover {
+        background: rgba(0, 212, 212, 0.08);
+    }
+    
+    .photo-thumbs {
+        display: flex;
+        gap: 8px;
+        margin-top: 14px;
+        padding-top: 14px;
+        border-top: 1px solid #1e1e1e;
+    }
+    
+    .thumb {
+        width: 70px;
+        height: 55px;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #1a1a1a;
+        border: 1px solid #2a2a2a;
+    }
+    
+    .thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .thumb.active {
+        border: 2px solid #00d4d4;
+    }
+    
+    .thumb.empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #333;
+        font-size: 18px;
+    }
+    /* ===== SIDEBAR ===== */
+    
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .sidebar-card {
+        background: #161616;
+        border: 1px solid #252525;
+        border-radius: 14px;
+        padding: 18px;
+    }
+    
+    .sidebar-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        color: #fff;
+        margin-bottom: 16px;
+    }
+    
+    .info-icon {
+        width: 22px;
+        height: 22px;
+        background: #1e2a2a;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #00d4d4;
+        font-size: 11px;
+        font-weight: 700;
+    }
+    
+    .tip {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 14px;
+    }
+    
+    .tip:last-of-type {
+        margin-bottom: 0;
+    }
+    
+    .tip-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-top: 4px;
+        flex-shrink: 0;
+    }
+    
+    .tip-dot.cyan {
+        background: #00d4d4;
+    }
+    
+    .tip-dot.green {
+        background: #00cc88;
+    }
+    
+    .tip-content strong {
+        display: block;
+        color: #e0e0e0;
+        font-size: 13px;
+        margin-bottom: 3px;
+    }
+    
+    .tip-content p {
+        color: #777;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+    /* Quality bar */
+    
+    .quality-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    
+    .quality-label span:first-child {
+        color: #aaa;
+        font-size: 13px;
+    }
+    
+    .quality-pct {
+        color: #00d4d4;
+        font-weight: 700;
+        font-size: 14px;
+    }
+    
+    .quality-bar-track {
+        height: 6px;
+        background: #222;
+        border-radius: 99px;
+        overflow: hidden;
+        margin-bottom: 8px;
+    }
+    
+    .quality-bar-fill {
+        height: 100%;
+        width: 75%;
+        background: linear-gradient(90deg, #00d4d4, #00a0a0);
+        border-radius: 99px;
+    }
+    
+    .quality-hint {
+        font-size: 11px;
+        color: #555;
+    }
+    /* ===== PRICE CARD ===== */
+    
+    .price-label-row {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        margin-bottom: 16px;
+    }
+    
+    .price-label-row .lbl {
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #777;
+    }
+    
+    .price-value-row {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+    }
+    
+    .price-value {
+        font-size: 22px;
+        font-weight: 700;
+        color: #00d4d4;
+    }
+    
+    .price-currency {
+        font-size: 14px;
+        color: #555;
+        font-weight: 600;
+    }
+    
+    .price-slider-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        color: #555;
+        margin-bottom: 6px;
+        margin-top: 8px;
+    }
+    
+    .slider-track {
+        height: 8px;
+        background: linear-gradient(90deg, #333 0%, #00d4d4 45%, #f97316 70%, #333 100%);
+        border-radius: 99px;
+        position: relative;
+        margin-bottom: 12px;
+    }
+    
+    .slider-thumb {
+        width: 14px;
+        height: 14px;
+        background: #f97316;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 67%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
+    }
+    
+    .estimation-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        margin-top: 4px;
+    }
+    
+    .estimation-badge {
+        background: #1e1e1e;
+        border: 1px solid #2a2a2a;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-size: 12px;
+        color: #888;
+        min-width: 110px;
+    }
+    
+    .estimation-badge strong {
+        display: block;
+        color: #bbb;
+        font-size: 14px;
+    }
+    
+    .estimation-badge small {
+        font-size: 10px;
+        color: #555;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .price-warning {
+        background: #1e1400;
+        border: 1px solid #5a3e00;
+        border-radius: 8px;
+        padding: 10px 14px;
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        font-size: 12px;
+        color: #d4a017;
+        flex: 1;
+        line-height: 1.5;
+    }
+    
+    .warn-icon {
+        font-size: 14px;
+        flex-shrink: 0;
+        margin-top: 1px;
+    }
+    /* ===== STICKY BOTTOM BAR ===== */
+    
+    .bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #111;
+        border-top: 1px solid #222;
+        padding: 14px 32px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 99;
+    }
+    
+    .btn-back {
+        background: none;
+        border: none;
+        color: #aaa;
+        font-size: 14px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: color 0.2s;
+    }
+    
+    .btn-back:hover {
+        color: #fff;
+    }
+    
+    .bottom-actions {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .btn-draft {
+        background: transparent;
+        border: 1.5px solid #00d4d4;
+        border-radius: 28px;
+        color: #00d4d4;
+        padding: 10px 24px;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-draft:hover {
+        background: rgba(0, 212, 212, 0.08);
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #ff3c7e, #c2185b);
+        border: none;
+        border-radius: 28px;
+        color: #fff;
+        padding: 10px 28px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 20px rgba(255, 60, 126, 0.35);
+        transition: opacity 0.2s, transform 0.1s;
+    }
+    
+    .btn-submit:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
+    /* ===== SECTION VISIBILITY — stepper ===== */
+    
+    .section {
+        display: none;
+    }
+    
+    .section.visible {
+        display: block;
+    }
+    
+    .sidebar-section {
+        display: none;
+    }
+    
+    .sidebar-section.visible {
+        display: block;
+    }
+</style>
 
-<form method="POST" enctype="multipart/form-data">
-    <label>Titre *</label>
-    <input type="text" name="titre" value="{{ titre or '' }}" required placeholder="Ex: Bel appartement Alger centre">
+<!-- NAVBAR -->
+<nav class="navbar">
+    <a href="{{ url_for('index') }}" class="navbar-brand">DzairLuxury</a>
+    <ul class="navbar-links">
+        <li><a href="{{ url_for('index') }}">Accueil</a></li>
+        <li><a href="#">Rechercher</a></li>
+        <li><a href="#">Estimer</a></li>
+        <li><a href="{{ url_for('annonces.publier') }}" class="active">Publier</a></li>
+    </ul>
+    <div class="navbar-icons">
+        <span class="navbar-bell">🔔</span>
+        <div class="navbar-avatar">
+            {% if session.nom %}{{ session.nom[0]|upper }}{% else %}?{% endif %}
+        </div>
+    </div>
+</nav>
 
-    <label>Description</label>
-    <textarea name="description" rows="4" placeholder="Décrivez votre bien...">{{ description or '' }}</textarea>
+<div class="page-wrapper">
 
-    <label>Prix (DA) *</label>
-    <input type="number" name="prix" value="{{ prix or '' }}" required placeholder="3500000">
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+        <h1>Publier une annonce</h1>
+        <p>Vendez votre bien d'exception en quelques étapes guidées.</p>
+    </div>
 
-    <label>Surface (m²) *</label>
-    <input type="number" name="surface" value="{{ surface or '' }}" required placeholder="120">
+    <!-- =====================================================================
+         STEPPER — chaque bouton appelle goStep('clé')
+         ===================================================================== -->
+    <div class="stepper" role="tablist">
+        <button type="button" class="step active" role="tab" onclick="goStep('general')">Général</button>
+        <button type="button" class="step" role="tab" onclick="goStep('infos')">Infos bien</button>
+        <button type="button" class="step" role="tab" onclick="goStep('photos')">Photos</button>
+        <button type="button" class="step" role="tab" onclick="goStep('prix')">Prix</button>
+        <button type="button" class="step" role="tab" onclick="goStep('visibilite')">Visibilité</button>
+        <button type="button" class="step" role="tab" onclick="goStep('validation')">Validation</button>
+    </div>
 
-    <label>Adresse complète *</label>
-    <input type="text" name="adresse" value="{{ adresse or '' }}" required placeholder="12 Rue Bab El Oued, Alger">
+    <!-- Formulaire — champs nommés selon contrat §8 : titre, description, prix,
+         surface, adresse, type, photos -->
+    <form method="POST" enctype="multipart/form-data" id="mainForm">
 
-    <label>Type de bien *</label>
-    <select name="type" required>
-        <option value="">-- Choisir --</option>
-        <option value="APPARTEMENT" {% if type_bien=='APPARTEMENT' %}selected{% endif %}>Appartement</option>
-        <option value="MAISON" {% if type_bien=='MAISON' %}selected{% endif %}>Maison</option>
-        <option value="TERRAIN" {% if type_bien=='TERRAIN' %}selected{% endif %}>Terrain</option>
-        <option value="COMMERCIAL" {% if type_bien=='COMMERCIAL' %}selected{% endif %}>Commercial</option>
-    </select>
+        <div class="main-grid">
 
-    <label>Photos (plusieurs possibles)</label>
-    <input type="file" name="photos" multiple accept="image/png,image/jpeg,image/jpg,image/webp">
-    <small>Formats acceptés : PNG, JPG, JPEG, WEBP</small>
+            <!-- ============================================================
+                 COLONNE GAUCHE
+                 ============================================================ -->
+            <div class="left-col">
 
-    <button type="submit">📤 Publier l'annonce</button>
-</form>
-{% endblock %}
+                <!-- ── SECTION : Informations détaillées (infos bien) ─────── -->
+                <div class="section visible" id="sec-infos">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-title-icon">🏢</div>
+                                Informations détaillées
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Type de propriété</label>
+                                <div class="select-wrapper">
+                                    <!-- name="type" — contrat §8 ; valeurs §4 toujours MAJUSCULES -->
+                                    <select name="type" class="form-control" required>
+                                        <option value="APPARTEMENT" {% if type_bien == 'APPARTEMENT' %}selected{% endif %}>Appartement</option>
+                                        <option value="MAISON"      {% if type_bien == 'MAISON'      %}selected{% endif %}>Maison</option>
+                                        <option value="TERRAIN"     {% if type_bien == 'TERRAIN'     %}selected{% endif %}>Terrain</option>
+                                        <option value="COMMERCIAL"  {% if type_bien == 'COMMERCIAL'  %}selected{% endif %}>Villa de luxe</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Surface habitable (m²)</label>
+                                <div class="input-suffix">
+                                    <!-- name="surface" — contrat §8 -->
+                                    <input type="number" name="surface" class="form-control" value="{{ surface or '' }}" placeholder="Ex: 250">
+                                    <span class="suffix-label">m²</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Nombre de pièces</label>
+                                <div class="pieces-group">
+                                    <button type="button" class="piece-btn active" onclick="selectPiece(this, 3)">3</button>
+                                    <button type="button" class="piece-btn" onclick="selectPiece(this, 4)">4</button>
+                                    <button type="button" class="piece-btn" onclick="selectPiece(this, 5)">5</button>
+                                    <button type="button" class="piece-btn" onclick="selectPiece(this, 6)">6+</button>
+                                </div>
+                                <input type="hidden" name="pieces" id="piecesInput" value="3">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Année de construction</label>
+                                <input type="number" name="annee_construction" class="form-control" placeholder="YYYY" min="1900" max="2026">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /sec-infos -->
+
+                <!-- ── SECTION : Galerie multimédia (photos) ──────────────── -->
+                <div class="section visible" id="sec-photos">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-title-icon">📷</div>
+                                Galerie multimédia
+                            </div>
+                            <div class="upload-badge">Recommandé : 10+ photos</div>
+                        </div>
+
+                        <label for="fileInput">
+                            <div class="upload-zone" id="uploadZone">
+                                <div class="upload-icon">☁</div>
+                                <p><strong>Glissez vos photos ici</strong></p>
+                                <p>Ou cliquez pour parcourir vos fichiers (Max 20MB par fichier)</p>
+                            </div>
+                        </label>
+                        <!-- name="photos" — contrat §8 -->
+                        <input type="file" name="photos" id="fileInput" multiple accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none" onchange="handleFiles(this)">
+
+                        <div style="text-align:center; margin-top:-4px; margin-bottom:12px;">
+                            <button type="button" class="btn-select-files" onclick="document.getElementById('fileInput').click()">
+                                Sélectionner des fichiers
+                            </button>
+                        </div>
+
+                        <div class="photo-thumbs" id="thumbsRow"></div>
+                    </div>
+                </div>
+                <!-- /sec-photos -->
+
+                <!-- ── SECTION : Positionnement du prix ───────────────────── -->
+                <!-- ── SECTION : Positionnement du prix ───────────────────── -->
+                <!-- MODIFIÉ : les 3 labels sont maintenant des boutons cliquables
+                     qui communiquent entre eux et avec l'estimation DzairAI      -->
+                <div class="section visible" id="sec-prix">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-title-icon"></div>
+                                Positionnement du prix
+                            </div>
+                        </div>
+
+                        <div class="price-label-row">
+                            <span class="lbl">Votre prix de vente</span>
+                            <div class="price-value-row">
+                                <span class="price-currency">DA</span>
+                            </div>
+                        </div>
+
+                        <!-- name="prix" — contrat §8 -->
+                        <input type="number" name="prix" class="form-control" id="prixInput" value="{{ prix or '85000000' }}" required placeholder="Prix de vente en DA" oninput="onPrixChange(this.value)" style="margin-bottom:16px;">
+
+                        <!-- ── LIENS DE ZONE (cliquables) ────────────────── -->
+                        <span class="price-zone-label">Positionnement par rapport au marché</span>
+                        <div class="price-zone-row">
+                            <a href="#" class="zone-link zone-under" id="btnUnder" onclick="selectZone('under'); return false;">
+                                <span class="zone-icon"></span> Sous-évalué
+                                <span class="zone-sub">Vente rapide</span>
+                            </a>
+                            <a href="#" class="zone-link zone-market" id="btnMarket" onclick="selectZone('market'); return false;">
+                                <span class="zone-icon"></span> Prix marché
+                                <span class="zone-sub">Équilibré</span>
+                            </a>
+                            <a href="#" class="zone-link zone-over" id="btnOver" onclick="selectZone('over'); return false;">
+                                <span class="zone-icon"></span> Sur-évalué
+                                <span class="zone-sub">Délai long</span>
+                            </a>
+                        </div>
+
+                        <!-- ── PANNEAU FEEDBACK DzairAI (nouveau) ─────────── -->
+                        <div class="ai-panel green" id="aiPanelUnder">
+                            <div class="ai-panel-header">
+                                <span class="ai-logo">DzairAI</span> Bien sous-évalué
+                            </div>
+                            <div class="ai-panel-body" id="aiBodyUnder"></div>
+                            <div class="ai-panel-footer">
+                                <span>Estimation ± 5% · 142 biens similaires à Hydra</span>
+                                <span id="aiFooterUnder"></span>
+                            </div>
+                        </div>
+
+                        <div class="ai-panel cyan" id="aiPanelMarket">
+                            <div class="ai-panel-header">
+                                <span class="ai-logo">DzairAI</span> Prix dans la fourchette marché
+                            </div>
+                            <div class="ai-panel-body" id="aiBodyMarket"></div>
+                            <div class="ai-panel-footer">
+                                <span>Estimation ± 5% · 142 biens similaires à Hydra</span>
+                                <span id="aiFooterMarket"></span>
+                            </div>
+                        </div>
+
+                        <div class="ai-panel orange" id="aiPanelOver">
+                            <div class="ai-panel-header">
+                                <span class="ai-logo">DzairAI</span> ⚠️ Prix au-dessus du marché
+                            </div>
+                            <div class="ai-panel-body" id="aiBodyOver"></div>
+                            <div class="ai-panel-footer">
+                                <span id="aiFooterOver"></span>
+                            </div>
+                        </div>
+
+                        <!-- ── BADGE ESTIMATION (toujours visible) ────────── -->
+                        <div class="estimation-row">
+                            <div class="estimation-badge">
+                                <div class="badge-title">Estimation DzairAI &nbsp;± 5%</div>
+                                <div class="badge-diff" id="badgeDiff">—</div>
+                                <div class="badge-source"></div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- /sec-prix -->
+
+                <!-- Champs cachés — noms contrat §8 : titre, description, adresse -->
+                <input type="hidden" name="titre" value="{{ titre or '' }}">
+                <input type="hidden" name="description" value="{{ description or '' }}">
+                <input type="hidden" name="adresse" value="{{ adresse or '' }}">
+
+            </div>
+            <!-- /left-col -->
+
+            <!-- ============================================================
+                 SIDEBAR DROITE
+                 ============================================================ -->
+            <aside class="sidebar">
+
+                <!-- Conseils d'expert — visible : général + visibilité -->
+                <div class="sidebar-section visible" id="sec-sidebar-conseils">
+                    <div class="sidebar-card">
+                        <div class="sidebar-title">
+                            <div class="info-icon">i</div>
+                            Conseils d'expert
+                        </div>
+                        <div class="tip">
+                            <div class="tip-dot cyan"></div>
+                            <div class="tip-content">
+                                <strong>Photos de jour</strong>
+                                <p>Les annonces avec des photos prises en lumière naturelle reçoivent 3x plus de clics.</p>
+                            </div>
+                        </div>
+                        <div class="tip">
+                            <div class="tip-dot green"></div>
+                            <div class="tip-content">
+                                <strong>Précision de la surface</strong>
+                                <p>Une erreur de surface peut invalider la transaction chez le notaire.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Qualité annonce — visible : général + visibilité -->
+                <div class="sidebar-section visible" id="sec-sidebar-qualite">
+                    <div class="sidebar-card">
+                        <div class="quality-label">
+                            <span>Qualité de l'annonce</span>
+                            <span class="quality-pct">75%</span>
+                        </div>
+                        <div class="quality-bar-track">
+                            <div class="quality-bar-fill"></div>
+                        </div>
+                        <p class="quality-hint">Ajoutez une description détaillée pour atteindre 100%</p>
+                    </div>
+                </div>
+
+            </aside>
+
+        </div>
+        <!-- /main-grid -->
+
+    </form>
+
+</div>
+<!-- /page-wrapper -->
+
+<!-- =====================================================================
+     BOTTOM BAR FIXE — visible : général + validation
+     ===================================================================== -->
+<div class="bottom-bar" id="bottomBar">
+    <button type="button" class="btn-back" onclick="history.back()">
+        ← &nbsp;Retour
+    </button>
+    <div class="bottom-actions">
+        <button type="button" class="btn-draft" onclick="saveDraft()">
+            Sauvegarder brouillon
+        </button>
+        <button type="button" class="btn-submit" onclick="submitForm()">
+            Soumettre à la modération &nbsp;➤
+        </button>
+    </div>
+</div>
+
+<script>
+    /* =============================================================================
+                                               STEPPER — tables de visibilité
+                                               =============================================================================
+                                               Contrat §5 (variables Jinja2) : titre, description, prix, surface, adresse, type_bien
+                                               Contrat §4 (valeurs type)     : APPARTEMENT / MAISON / TERRAIN / COMMERCIAL
+                                               Contrat §3 (valeurs statut)   : BROUILLON / EN_ATTENTE / PUBLIEE / REJETEE / ARCHIVEE
+                                               Contrat §8 (name des champs)  : titre, description, prix, surface, adresse, type, photos
+                                               ============================================================================= */
+
+    /* Sections colonne gauche à afficher pour chaque étape */
+    const leftMap = {
+        general: ['sec-infos', 'sec-photos', 'sec-prix'],
+        infos: ['sec-infos'],
+        photos: ['sec-photos'],
+        prix: ['sec-prix'],
+        visibilite: [],
+        validation: []
+    };
+
+    /* Sections sidebar à afficher pour chaque étape */
+    const sidebarMap = {
+        general: ['sec-sidebar-conseils', 'sec-sidebar-qualite'],
+        infos: [],
+        photos: [],
+        prix: [],
+        visibilite: ['sec-sidebar-conseils', 'sec-sidebar-qualite'],
+        validation: []
+    };
+
+    /* Bottom bar visible uniquement sur général et validation */
+    const bottomBarSteps = ['general', 'validation'];
+
+    const allLeft = ['sec-infos', 'sec-photos', 'sec-prix'];
+    const allSidebar = ['sec-sidebar-conseils', 'sec-sidebar-qualite'];
+    const stepKeys = ['general', 'infos', 'photos', 'prix', 'visibilite', 'validation'];
+
+    function goStep(key) {
+        /* 1. Mettre à jour l'onglet actif */
+        document.querySelectorAll('.step').forEach((btn, i) => {
+            const isActive = stepKeys[i] === key;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+
+        /* 2. Sections colonne gauche */
+        allLeft.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('visible', (leftMap[key] || []).includes(id));
+        });
+
+        /* 3. Sections sidebar */
+        allSidebar.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.toggle('visible', (sidebarMap[key] || []).includes(id));
+        });
+
+        /* 4. Bottom bar */
+        document.getElementById('bottomBar').style.display =
+            bottomBarSteps.includes(key) ? 'flex' : 'none';
+    }
+
+    /* Démarrage sur l'onglet Général */
+    goStep('general');
+
+    /* =============================================================================
+       FONCTIONS FORMULAIRE
+       ============================================================================= */
+
+    /* Sélecteur de pièces */
+    function selectPiece(btn, val) {
+        document.querySelectorAll('.piece-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('piecesInput').value = val;
+    }
+
+    /* Affichage du prix formaté */
+    function updatePriceDisplay(val) {
+        const num = parseInt(val) || 0;
+        document.getElementById('priceDisplay').textContent = num.toLocaleString('fr-DZ');
+    }
+
+    /* Miniatures de photos */
+    function handleFiles(input) {
+        const row = document.getElementById('thumbsRow');
+        row.innerHTML = '';
+        Array.from(input.files).slice(0, 6).forEach((file, i) => {
+            const reader = new FileReader();
+            reader.onload = e => {
+                const div = document.createElement('div');
+                div.className = 'thumb' + (i === 0 ? ' active' : '');
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                div.appendChild(img);
+                row.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    /* Glisser-déposer */
+    const zone = document.getElementById('uploadZone');
+    zone.addEventListener('dragover', e => {
+        e.preventDefault();
+        zone.style.borderColor = '#00d4d4';
+    });
+    zone.addEventListener('dragleave', () => {
+        zone.style.borderColor = '#333';
+    });
+    zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.style.borderColor = '#333';
+        const dt = new DataTransfer();
+        Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
+        document.getElementById('fileInput').files = dt.files;
+        handleFiles(document.getElementById('fileInput'));
+    });
+
+    /* Soumission — route contrat §7 : url_for('annonces.publier') */
+    function saveDraft() {
+        /* statut BROUILLON — contrat §3 */
+        document.getElementById('mainForm').action =
+            "{{ url_for('annonces.publier') }}?action=brouillon";
+        document.getElementById('mainForm').submit();
+    }
+
+    function submitForm() {
+        /* statut EN_ATTENTE après soumission — contrat §3 */
+        document.getElementById('mainForm').action = "{{ url_for('annonces.publier') }}";
+        document.getElementById('mainForm').submit();
+    }
+    /* =============================================================================
+      POSITIONNEMENT DU PRIX — logique complète (NOUVEAU)
+      =============================================================================
+      AI_ESTIM   : estimation DzairAI de référence (DA)
+      MARGE_PCT  : ±5 % = fourchette "prix marché"
+      currentZone: zone sélectionnée par le clic ('under' | 'market' | 'over' | null)
+      ============================================================================= */
+
+    const AI_ESTIM = 78500000; /* estimation DzairAI en DA */
+    const MARGE_PCT = 0.05; /* fourchette ± 5 %         */
+
+    let currentZone = null;
+
+    /* Formate un entier en séparateur d'espace style fr-DZ */
+    function fmt(n) {
+        return Math.round(n).toLocaleString('fr-DZ');
+    }
+
+    /* Appelée à chaque frappe dans le champ prix */
+    function onPrixChange(val) {
+        const num = parseInt(val) || 0;
+        document.getElementById('priceDisplay').textContent = fmt(num);
+        refreshPrixUI(num);
+    }
+
+    /* Met à jour badge diff + panneau IA actif sans changer la zone sélectionnée */
+    function refreshPrixUI(prix) {
+        const diff = prix - AI_ESTIM;
+        const pct = ((diff / AI_ESTIM) * 100).toFixed(1);
+        const absDiff = Math.abs(diff);
+        const absPct = Math.abs(parseFloat(pct));
+
+        /* ── Badge diff ──────────────────────────────────────────────── */
+        const badgeDiff = document.getElementById('badgeDiff');
+        if (prix === 0) {
+            badgeDiff.textContent = '—';
+            badgeDiff.style.color = '#555';
+        } else if (diff > 0) {
+            badgeDiff.textContent = `+${fmt(diff)} DA (+${absPct}% au-dessus)`;
+            badgeDiff.style.color = '#f97316';
+        } else if (diff < 0) {
+            badgeDiff.textContent = `−${fmt(absDiff)} DA (−${absPct}% en dessous)`;
+            badgeDiff.style.color = '#00cc88';
+        } else {
+            badgeDiff.textContent = 'Exactement sur l\'estimation';
+            badgeDiff.style.color = '#00d4d4';
+        }
+
+        /* ── Panneau IA actif ────────────────────────────────────────── */
+        if (currentZone) refreshAiPanel(currentZone, prix, diff, absDiff, absPct);
+    }
+
+    /* Sélectionne une zone ET rafraîchit le panneau IA correspondant */
+    function selectZone(zone) {
+        /* Désactiver tous les liens */
+        document.getElementById('btnUnder').classList.remove('active');
+        document.getElementById('btnMarket').classList.remove('active');
+        document.getElementById('btnOver').classList.remove('active');
+
+        /* Masquer tous les panneaux */
+        document.getElementById('aiPanelUnder').classList.remove('visible');
+        document.getElementById('aiPanelMarket').classList.remove('visible');
+        document.getElementById('aiPanelOver').classList.remove('visible');
+
+        /* Si on reclique sur la zone déjà active → déselectionner */
+        if (currentZone === zone) {
+            currentZone = null;
+            return;
+        }
+
+        currentZone = zone;
+
+        /* Activer le bouton choisi */
+        const btnMap = {
+            under: 'btnUnder',
+            market: 'btnMarket',
+            over: 'btnOver'
+        };
+        document.getElementById(btnMap[zone]).classList.add('active');
+
+        /* Calculer les valeurs courantes */
+        const prix = parseInt(document.getElementById('prixInput').value) || 0;
+        const diff = prix - AI_ESTIM;
+        const absDiff = Math.abs(diff);
+        const absPct = Math.abs(((diff / AI_ESTIM) * 100)).toFixed(1);
+
+        refreshAiPanel(zone, prix, diff, absDiff, absPct);
+    }
+
+    /* Construit et affiche le contenu du panneau DzairAI pour une zone donnée */
+    function refreshAiPanel(zone, prix, diff, absDiff, absPct) {
+        const estim = fmt(AI_ESTIM);
+        const prixFmt = fmt(prix);
+        const diffFmt = fmt(absDiff);
+        const bas = fmt(AI_ESTIM * (1 - MARGE_PCT));
+        const haut = fmt(AI_ESTIM * (1 + MARGE_PCT));
+
+        let bodyText = '';
+        let footerText = '';
+        let panelId = '';
+
+        if (zone === 'under') {
+            panelId = 'aiPanelUnder';
+            if (prix === 0) {
+                bodyText = 'Saisissez votre prix pour obtenir une analyse.';
+            } else if (prix >= AI_ESTIM) {
+                bodyText = `Votre prix (${prixFmt} DA) est égal ou supérieur à l'estimation DzairAI (${estim} DA). Il n'est pas sous-évalué. Envisagez de le baisser sous ${bas} DA pour stimuler l'intérêt.`;
+            } else {
+                const ecart = parseFloat(absPct);
+                if (ecart <= 5) {
+                    bodyText = `Votre prix (${prixFmt} DA) est légèrement sous l'estimation (−${absPct}%, soit −${diffFmt} DA). Bonne stratégie pour déclencher des visites rapidement tout en limitant la perte de valeur.`;
+                    footerText = 'Délai estimé : < 7 jours';
+                } else if (ecart <= 15) {
+                    bodyText = `Votre prix (${prixFmt} DA) est nettement sous l'estimation (−${absPct}%, soit −${diffFmt} DA). Vous maximisez vos chances d'une vente très rapide, mais laissez de la valeur sur la table.`;
+                    footerText = 'Délai estimé : 3 – 5 jours';
+                } else {
+                    bodyText = `Votre prix (${prixFmt} DA) est très inférieur à l'estimation (−${absPct}%, soit −${diffFmt} DA). Vente quasi assurée sous 48 h, mais la perte financière est significative.`;
+                    footerText = '⚠ Perte estimée : −' + diffFmt + ' DA';
+                }
+            }
+            document.getElementById('aiBodyUnder').textContent = bodyText;
+            document.getElementById('aiFooterUnder').textContent = footerText;
+
+        } else if (zone === 'market') {
+            panelId = 'aiPanelMarket';
+            if (prix === 0) {
+                bodyText = 'Saisissez votre prix pour obtenir une analyse.';
+            } else {
+                const inRange = prix >= AI_ESTIM * (1 - MARGE_PCT) && prix <= AI_ESTIM * (1 + MARGE_PCT);
+                if (inRange) {
+                    bodyText = `Votre prix (${prixFmt} DA) est dans la fourchette de marché DzairAI [${bas} – ${haut} DA]. Positionnement optimal : visibilité maximale et délai de vente raisonnable.`;
+                    footerText = '✓ Délai estimé : 10 – 15 jours';
+                } else if (prix < AI_ESTIM) {
+                    bodyText = `Votre prix (${prixFmt} DA) est sous la fourchette de marché (${bas} DA). Remontez-le légèrement pour vous positionner dans la zone optimale [${bas} – ${haut} DA].`;
+                    footerText = 'Ajustement suggéré : +' + diffFmt + ' DA';
+                } else {
+                    bodyText = `Votre prix (${prixFmt} DA) dépasse la fourchette de marché (${haut} DA). Réduisez-le pour entrer dans la zone optimale [${bas} – ${haut} DA] et attirer plus d'acheteurs.`;
+                    footerText = 'Ajustement suggéré : −' + diffFmt + ' DA';
+                }
+            }
+            document.getElementById('aiBodyMarket').textContent = bodyText;
+            document.getElementById('aiFooterMarket').textContent = footerText;
+
+        } else if (zone === 'over') {
+            panelId = 'aiPanelOver';
+            if (prix === 0) {
+                bodyText = 'Saisissez votre prix pour obtenir une analyse.';
+            } else if (prix <= AI_ESTIM) {
+                bodyText = `Votre prix (${prixFmt} DA) est inférieur ou égal à l'estimation DzairAI (${estim} DA). Il n'est pas sur-évalué. La zone "Sur-évalué" s'applique aux prix au-dessus de ${haut} DA.`;
+            } else {
+                const ecart = parseFloat(absPct);
+                if (ecart <= 5) {
+                    bodyText = `Votre prix (${prixFmt} DA) est légèrement au-dessus de l'estimation (+${absPct}%). Impact modéré : la vente pourrait être ralentie de 5 à 10 jours.`;
+                    footerText = 'Délai supplémentaire estimé : +7 jours';
+                } else if (ecart <= 15) {
+                    bodyText = `Votre prix (${prixFmt} DA) est ${absPct}% au-dessus du marché (+${diffFmt} DA). Risque réel de sous-exposition. DzairAI recommande de ne pas dépasser ${haut} DA.`;
+                    footerText = '⚠ Délai supplémentaire : +15 à 20 jours';
+                } else {
+                    bodyText = `Votre prix (${prixFmt} DA) est très sur-évalué (+${absPct}%, soit +${diffFmt} DA au-dessus du marché). Les acheteurs comparent en temps réel : un écart aussi élevé réduit drastiquement les contacts.`;
+                    footerText = '🚨 Risque de non-vente élevé';
+                }
+            }
+            document.getElementById('aiBodyOver').textContent = bodyText;
+            document.getElementById('aiFooterOver').textContent = footerText;
+        }
+
+        /* Afficher le bon panneau */
+        if (panelId) document.getElementById(panelId).classList.add('visible');
+    }
+</script>

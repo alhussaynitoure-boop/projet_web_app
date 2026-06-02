@@ -1,14 +1,11 @@
-{% extends "base.html" %}
-{% block title %}Accueil{% endblock %}
-{% block content %}
+{% extends "base.html" %} {% block title %}Accueil{% endblock %} {% block content %}
 <h1>Annonces disponibles</h1>
 <p>{{ annonces|length }} annonce(s) trouvée(s)</p>
 
 {% for annonce in annonces %}
 <div class="card">
     {% if annonce.id in photos %}
-    <img src="{{ photos[annonce.id] }}" alt="Photo">
-    {% else %}
+    <img src="{{ photos[annonce.id] }}" alt="Photo"> {% else %}
     <p><em>📷 Aucune photo</em></p>
     {% endif %}
     <h3><a href="{{ url_for('detail_annonce', annonce_id=annonce.id) }}">{{ annonce.titre }}</a></h3>
@@ -21,8 +18,6 @@
 <div class="card">
     <p>Aucune annonce publiée pour le moment.</p>
     {% if session.role == 'VENDEUR' %}
-    <a href="{{ url_for('annonces.publier') }}">➕ Publier une annonce</a>
-    {% endif %}
+    <a href="{{ url_for('annonces.publier') }}">➕ Publier une annonce</a> {% endif %}
 </div>
-{% endfor %}
-{% endblock %}
+{% endfor %} {% endblock %}
