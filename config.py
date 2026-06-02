@@ -46,6 +46,13 @@ UPLOAD_FOLDER = os.path.join(BASE_DIR, "static", "uploads")
 # les fichiers de ce dossier (images, CSS, JS) sans qu'on ait besoin
 # d'écrire une route pour chacun.
 
+ 
+
+
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# remplace par ta vraie clé
+# il s'agit de la cle api pour interagir avec l'ia geminie 
+
 
 # ── Extensions de fichiers autorisées pour les uploads ───────────────────────
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}

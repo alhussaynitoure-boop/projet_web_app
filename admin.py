@@ -30,6 +30,11 @@ from functools import wraps
 from auth import login_required
 # On réutilise @login_required comme base, puis on ajoute la vérif admin
 
+from IA_Analise import analyser_image
+#importation pour l'utilisation de la fonction analyser_image
+
+
+
 
 # ── Création du Blueprint ──────────────────────────────────────────────────────
 
@@ -314,4 +319,52 @@ def rejeter(annonce_id):
     # ── 5. Validation et redirection ────────────────────────────────────────
     db.commit()
     flash(f"Annonce rejetée. Motif : {motif}", "info")
+    return redirect(url_for('admin.panel'))
+
+
+# ── Route : Analyser une annonce avec l'IA (/admin/analyser/<id>) ────────────
+# CHANGEMENT : on analyse maintenant le texte de l'annonce (titre, description,
+# prix, type, surface, adresse) au lieu d'une image, car les modèles vision
+# gratuits ne sont plus disponibles. La logique reste identique.
+
+@admin.route('/admin/analyser/<int:annonce_id>', methods=['POST'])
+@login_required
+@admin_required
+def analyser(annonce_id):
+    db = get_db()
+
+    # CHANGEMENT : la requête récupère maintenant aussi titre, description,
+    # surface et adresse en plus de prix et type_bien
+    annonce = db.execute(
+        """
+        SELECT a.titre, a.description, a.prix,
+               b.type as type_bien, b.surface, b.adresse
+        FROM ANNONCE a
+        JOIN BIEN_IMMOBILIER b ON a.id_bien = b.id
+        WHERE a.id = ?
+        """,
+        (annonce_id,)
+    ).fetchone()
+
+    if annonce is None:
+        flash("Annonce introuvable.", "danger")
+        return redirect(url_for('admin.panel'))
+
+    # CHANGEMENT : on passe tous les champs textuels à analyser_image.
+    # chemin_image=None car on n'analyse plus de photo.
+    resultat = analyser_image(
+        chemin_image=None,
+        type_bien_declare=annonce['type_bien'],
+        prix=annonce['prix'],
+        titre=annonce['titre'],
+        description=annonce['description'],
+        surface=annonce['surface'],
+        adresse=annonce['adresse']
+    )
+
+    if resultat['succes']:
+        flash(f"🤖 Analyse IA :\n{resultat['analyse_brute']}", "info")
+    else:
+        flash(f"Erreur d'analyse : {resultat['erreur']}", "danger")
+
     return redirect(url_for('admin.panel'))
