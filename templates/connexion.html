@@ -1,17 +1,213 @@
-{% extends "base.html" %}
-{% block title %}Connexion{% endblock %}
-{% block content %}
-<h1>🔑 Se connecter</h1>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
+     :root {
+        --cyan: #00e5ff;
+        --pink: #ff2d78;
+        --bg: #0d0d0d;
+        --surface: #161616;
+        --border: #2a2a2a;
+        --input-bg: #1c1c1c;
+        --text: #e8e8e8;
+        --muted: #6a6a6a;
+        --radius: 12px;
+    }
+    /* wrapper centré */
+    
+    .auth-wrapper {
+        min-height: calc(100vh - 64px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 16px;
+        background: var(--bg);
+    }
+    /* carte */
+    
+    .auth-card {
+        position: relative;
+        width: 100%;
+        max-width: 440px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 44px 40px 40px;
+        overflow: hidden;
+    }
+    
+    .auth-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--cyan), var(--pink));
+    }
+    
+    .auth-card::after {
+        content: '';
+        position: absolute;
+        top: -80px;
+        right: -80px;
+        width: 260px;
+        height: 260px;
+        background: radial-gradient(circle, rgba(0, 229, 255, .07) 0%, transparent 70%);
+        pointer-events: none;
+    }
+    /* h1 */
+    
+    .auth-card h1 {
+        font-family: 'Syne', sans-serif;
+        font-weight: 800;
+        font-size: 26px;
+        color: var(--text);
+        margin-bottom: 28px;
+    }
+    /* form layout */
+    
+    .auth-card form {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+    /* labels */
+    
+    .auth-card label {
+        display: block;
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 1.2px;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 8px;
+        margin-top: 20px;
+    }
+    
+    .auth-card label:first-of-type {
+        margin-top: 0;
+    }
+    /* inputs */
+    
+    .auth-card input[type="email"],
+    .auth-card input[type="password"] {
+        width: 100%;
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 14px;
+        padding: 13px 16px;
+        outline: none;
+        transition: border-color .2s, box-shadow .2s;
+    }
+    
+    .auth-card input::placeholder {
+        color: #444;
+    }
+    
+    .auth-card input:focus {
+        border-color: var(--cyan);
+        box-shadow: 0 0 0 3px rgba(0, 229, 255, .08);
+    }
+    /* bouton submit */
+    
+    .auth-card button[type="submit"] {
+        margin-top: 28px;
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: var(--radius);
+        background: linear-gradient(135deg, #ff6b6b, #ff2d78, #a855f7);
+        color: #fff;
+        font-family: 'Syne', sans-serif;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: .5px;
+        cursor: pointer;
+        transition: opacity .2s, transform .15s;
+    }
+    
+    .auth-card button[type="submit"]:hover {
+        opacity: .9;
+        transform: translateY(-1px);
+    }
+    
+    .auth-card button[type="submit"]:active {
+        transform: translateY(0);
+    }
+    /* lien inscription */
+    
+    .auth-card>p {
+        margin-top: 24px;
+        text-align: center;
+        font-size: 13.5px;
+        color: var(--muted);
+    }
+    
+    .auth-card>p a {
+        color: var(--cyan);
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity .2s;
+    }
+    
+    .auth-card>p a:hover {
+        opacity: .75;
+    }
+    /* flash messages — catégories contrat : success, danger, warning, info */
+    
+    .alert {
+        padding: 11px 16px;
+        border-radius: 10px;
+        font-size: 13px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .alert-danger {
+        background: rgba(255, 45, 120, .12);
+        border: 1px solid rgba(255, 45, 120, .3);
+        color: #ff2d78;
+    }
+    
+    .alert-success {
+        background: rgba(0, 229, 255, .10);
+        border: 1px solid rgba(0, 229, 255, .3);
+        color: var(--cyan);
+    }
+    
+    .alert-warning {
+        background: rgba(255, 160, 0, .10);
+        border: 1px solid rgba(255, 160, 0, .3);
+        color: #ffa000;
+    }
+    
+    .alert-info {
+        background: rgba(100, 180, 255, .10);
+        border: 1px solid rgba(100, 180, 255, .3);
+        color: #64b4ff;
+    }
+</style>
 
-<form method="POST">
-    <label>Email *</label>
-    <input type="email" name="email" required placeholder="votre@email.com">
+<div class="auth-wrapper">
+    <div class="auth-card">
 
-    <label>Mot de passe *</label>
-    <input type="password" name="motDePasse" required placeholder="Votre mot de passe">
+        <h1>🔑 Se connecter</h1>
+        <div class="alert alert-{{ category }}"></div>
+        <form method="POST">
+            <label>Email *</label>
+            <input type="email" name="email" required placeholder="votre@email.com">
 
-    <button type="submit">Connexion</button>
-</form>
+            <label>Mot de passe *</label>
+            <input type="password" name="motDePasse" required placeholder="Votre mot de passe">
 
-<p>Pas de compte ? <a href="{{ url_for('auth.inscription') }}">S'inscrire</a></p>
-{% endblock %}
+            <button type="submit">Connexion</button>
+        </form>
+
+        <p>Pas de compte ? <a href="{{ url_for('auth.inscription') }}">S'inscrire</a></p>
+
+    </div>
+</div>
