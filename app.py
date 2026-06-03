@@ -8,7 +8,7 @@ MODIFICATIONS par rapport à la version précédente :
   4. Mise à jour de la route /mes-annonces pour lister les annonces du vendeur
 """
 
-from flask import Flask, render_template, g, request, redirect, url_for, flash
+from flask import Flask, render_template, g, request, redirect, url_for, flash, session
 import sqlite3
 import os
 
