@@ -1,0 +1,154 @@
+===============================================================================
+                       DZ-Immobilier — Protocole de Tests Manuels
+===============================================================================
+Ce document décrit les scénarios de test manuel à réaliser dans le navigateur afin
+de valider l'intégrité de l'application (inscription, connexion, publication,
+modération, filtres de recherche, espace personnel, suppression et déconnexion).
+
+-------------------------------------------------------------------------------
+SCÉNARIO 1 : Création de Compte (Inscription)
+-------------------------------------------------------------------------------
+* Rôle testé : Utilisateur anonyme
+* URL cible : /inscription (via le lien "Inscription" de la navbar)
+* Procédure :
+  1. Laisser tous les champs vides et cliquer sur "S'inscrire".
+     -> Résultat attendu : HTML5 bloque la soumission OU Flask affiche un message
+        flash rouge "Nom, email et mot de passe sont obligatoires.".
+  2. Saisir des mots de passe différents dans "Mot de passe" et "Confirmer le mot de passe".
+     -> Résultat attendu : Message flash rouge "Les mots de passe ne correspondent pas.".
+  3. Saisir un mot de passe de moins de 6 caractères (ex: "123").
+     -> Résultat attendu : Message flash rouge "Le mot de passe doit contenir au moins 6 caractères.".
+  4. Remplir correctement tous les champs en choisissant le rôle "VENDEUR".
+     -> Résultat attendu : Message flash vert "Compte créé avec succès ! ... Connectez-vous.",
+        redirection automatique vers la page de connexion (/connexion).
+  5. Tenter de s'inscrire à nouveau avec la même adresse email.
+     -> Résultat attendu : Message flash orange "Un compte avec cet email existe déjà.".
+
+-------------------------------------------------------------------------------
+SCÉNARIO 2 : Connexion à l'application
+-------------------------------------------------------------------------------
+* Rôle testé : Utilisateur anonyme
+* URL cible : /connexion (via le lien "Connexion" de la navbar)
+* Procédure :
+  1. Saisir un email inexistant ou un mauvais mot de passe.
+     -> Résultat attendu : Message flash rouge vague "Email ou mot de passe incorrect."
+        (sécurité contre le brute-force d'identifiants).
+  2. Saisir les identifiants corrects du vendeur créé au Scénario 1.
+     -> Résultat attendu : Message flash vert "Bienvenue, [Nom] !", redirection
+        vers la page d'accueil, la navbar change et affiche "👤 [Nom] (VENDEUR)"
+        ainsi que les liens "Publier" et "Mes Annonces".
+
+-------------------------------------------------------------------------------
+SCÉNARIO 3 : Publication d'une annonce (Parcours nominal & limites)
+-------------------------------------------------------------------------------
+* Rôle testé : VENDEUR connecté
+* URL cible : /publier (via le lien "Publier" de la navbar)
+* Procédure :
+  1. Tenter de soumettre le formulaire sans titre, sans prix ou sans adresse.
+     -> Résultat attendu : Blocage HTML5 ou alertes flash "Le titre est obligatoire",
+        "Le prix est obligatoire", etc.
+  2. Saisir des valeurs négatives ou non numériques dans le prix et la surface.
+     -> Résultat attendu : Alertes flash rouges "Le prix doit être supérieur à 0."
+        ou "La surface doit être un nombre valide.".
+  3. Remplir les champs avec des valeurs correctes :
+     - Titre : "Appartement F4 moderne Hydra"
+     - Type : "Appartement"
+     - Wilaya : "Alger"
+     - Prix : "15000000" (DA)
+     - Surface : "120" (m²)
+     - Adresse : "12 Rue des Pins, Hydra, Alger"
+     - Description : "Superbe appartement rénové avec cuisine équipée."
+  4. Sélectionner plusieurs photos d'extension valide (.png, .jpg, .webp).
+  5. Cliquer sur "Publier l'annonce".
+     -> Résultat attendu : Sauvegarde du bien et de l'annonce en base de données,
+        téléchargement physique des photos dans "static/uploads/" avec des noms uniques,
+        redirection vers /mes-annonces avec un message flash vert de succès. L'annonce
+        est listée avec le statut "En attente" (badge orange).
+
+-------------------------------------------------------------------------------
+SCÉNARIO 4 : Espace Personnel "Mes annonces"
+-------------------------------------------------------------------------------
+* Rôle testé : VENDEUR connecté
+* URL cible : /mes-annonces (via le lien "Mes Annonces" de la navbar)
+* Procédure :
+  1. Vérifier la présence du tableau listant les annonces.
+     -> Résultat attendu : L'annonce "Appartement F4 moderne Hydra" doit être présente.
+  2. Cliquer sur le titre de l'annonce non encore validée.
+     -> Résultat attendu : Non cliquable ou message indiquant qu'elle est hors ligne.
+  3. Vérifier que les boutons "Modifier" et "Supprimer" sont bien visibles et actifs.
+     -> Résultat attendu : Les boutons sont présents pour l'annonce sous statut "En attente".
+
+-------------------------------------------------------------------------------
+SCÉNARIO 5 : Modération Admin (Validation & Analyse IA)
+-------------------------------------------------------------------------------
+* Rôle testé : ADMIN connecté
+* URL cible : /admin (protégé par le décorateur @admin_required)
+* Procédure :
+  1. Se connecter avec un compte ayant le rôle 'ADMIN' dans la base de données.
+  2. Accéder à l'espace de modération /admin.
+     -> Résultat attendu : Le tableau affiche "Appartement F4 moderne Hydra" avec
+        ses détails et ses photos dans la file d'attente de modération.
+  3. Cliquer sur le bouton d'analyse IA pour l'annonce.
+     -> Résultat attendu : Une notification flash affiche les commentaires générés
+        par l'intelligence artificielle concernant la cohérence du prix déclaré
+        vis-à-vis du marché immobilier.
+  4. Cliquer sur le bouton "Valider l'annonce".
+     -> Résultat attendu : L'annonce disparaît du panel d'administration. Un message
+        de succès vert apparaît. L'annonce passe au statut 'PUBLIEE' en base de données,
+        et une entrée d'audit est insérée dans la table SIGNAL_DECISION.
+
+-------------------------------------------------------------------------------
+SCÉNARIO 6 : Affichage sur la page d'accueil publique
+-------------------------------------------------------------------------------
+* Rôle testé : Tout utilisateur (connecté ou anonyme)
+* URL cible : / (Accueil)
+* Procédure :
+  1. Naviguer vers la racine de l'application.
+     -> Résultat attendu : L'annonce "Appartement F4 moderne Hydra" apparaît maintenant
+        sous forme de carte avec sa photo principale, son titre, son prix, sa wilaya
+        et le prix/m² calculé dynamiquement par Jinja2 (ex: "125000 DA/m²").
+
+-------------------------------------------------------------------------------
+SCÉNARIO 7 : Barre de recherche et filtres de recherche
+-------------------------------------------------------------------------------
+* Rôle testé : Tout utilisateur
+* URL cible : / (Accueil)
+* Procédure :
+  1. Saisir "Hydra" dans la barre de recherche textuelle et valider.
+     -> Résultat attendu : L'annonce d'Hydra reste visible.
+  2. Saisir un filtre de prix min supérieur à 20 000 000 DA.
+     -> Résultat attendu : L'annonce d'Hydra disparaît (son prix étant de 15M DA).
+  3. Saisir des critères correspondant à l'annonce (ex: Prix max = 20M DA, type = APPARTEMENT).
+     -> Résultat attendu : L'annonce d'Hydra réapparaît dans la grille de résultats.
+
+-------------------------------------------------------------------------------
+SCÉNARIO 8 : Modification et Suppression en cascade
+-------------------------------------------------------------------------------
+* Rôle testé : VENDEUR connecté
+* URL cible : /mes-annonces
+* Procédure :
+  1. Tenter de modifier l'annonce validée.
+     -> Résultat attendu : Le bouton "Modifier" est désactivé car le statut est
+        passé à 'PUBLIEE' (la modification de biens déjà en ligne nécessite de
+        repenser la modération).
+  2. Cliquer sur le bouton "Supprimer" de l'annonce.
+     -> Résultat attendu : Une boîte de confirmation JavaScript (confirm) s'affiche.
+  3. Confirmer la suppression.
+     -> Résultat attendu : Redirection vers /mes-annonces avec message flash de succès.
+        L'annonce disparaît du tableau. Les fichiers images physiques de l'annonce sont
+        supprimés du dossier "static/uploads/". Les lignes correspondantes dans les
+        tables MEDIA, COMPTEUR, et SIGNAL_DECISION sont automatiquement nettoyées par
+        cascade SQLite. Le bien immobilier est également supprimé.
+
+-------------------------------------------------------------------------------
+SCÉNARIO 9 : Gestion de l'erreur 404
+-------------------------------------------------------------------------------
+* Rôle testé : Tout utilisateur
+* URL cible : /page-qui-n-existe-pas
+* Procédure :
+  1. Taper une URL erronée ou inexistante dans le navigateur.
+     -> Résultat attendu : Le serveur Flask renvoie le code d'état HTTP 404, affiche
+        la page 404.html héritée de base.html contenant le message d'erreur stylisé,
+        avec un bouton pour retourner à l'accueil et un bouton pour retourner à la
+        page précédente.
+===============================================================================

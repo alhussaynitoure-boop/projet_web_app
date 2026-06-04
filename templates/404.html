@@ -1,7 +1,39 @@
+{# Héritage du template structurel commun base.html #}
 {% extends "base.html" %}
-{% block title %}Page introuvable{% endblock %}
+
+{# Définition dynamique du titre de la page d'erreur #}
+{% block title %}Page non trouvée (404) - DZ-Immobilier{% endblock %}
+
+{# Définition du contenu de la page 404 #}
 {% block content %}
-<h1>😕 Page introuvable (404)</h1>
-<p>La page que vous cherchez n'existe pas ou a été déplacée.</p>
-<a href="{{ url_for('index') }}"><button>← Retour à l'accueil</button></a>
+<!-- Section d'affichage centré de l'erreur utilisant la classe empty-state et un style de padding personnalisé -->
+<div class="empty-state" style="padding: 6rem 1.5rem;">
+    
+    <!-- Code d'erreur 404 mis en valeur avec un effet de gradient rose vers cyan et ombre portée premium -->
+    <div style="font-family: 'Syne', sans-serif; font-size: 8rem; font-weight: 800; line-height: 1; background: linear-gradient(135deg, var(--pink), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; filter: drop-shadow(0 4px 10px rgba(233,30,140,0.15));">
+        404
+    </div>
+    
+    <!-- Titre d'explication de l'erreur -->
+    <div class="empty-state__title" style="font-size: 1.75rem; margin-bottom: 0.5rem; font-weight: 700;">
+        Oops ! Page introuvable
+    </div>
+    
+    <!-- Paragraphe descriptif informant l'utilisateur sur la raison potentielle de l'erreur -->
+    <p style="color: var(--text-secondary); max-width: 500px; margin-bottom: 2rem; font-size: 1rem; line-height: 1.6;">
+        La page que vous essayez d'atteindre n'existe pas ou a été déplacée. Vérifiez l'adresse saisie ou retournez à l'accueil.
+    </p>
+    
+    <!-- Boutons d'actions pour permettre à l'utilisateur de se réorienter facilement -->
+    <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <!-- Lien vers la page d'accueil de l'application -->
+        <a href="{{ url_for('index') }}" class="btn btn--md btn--primary">
+            🏠 Retourner à l'accueil
+        </a>
+        <!-- Bouton JavaScript natif pour revenir à la page historique précédente -->
+        <button onclick="history.back();" class="btn btn--md btn--ghost">
+            ⬅️ Page précédente
+        </button>
+    </div>
+</div>
 {% endblock %}

@@ -1,43 +1,156 @@
+{# Héritage du template de base de l'application #}
 {% extends "base.html" %}
-{% block title %}Mes annonces{% endblock %}
+
+{# Définition dynamique du titre de l'onglet #}
+{% block title %}Mes Annonces - DZ-Immobilier{% endblock %}
+
+{# Définition du contenu principal de la page #}
 {% block content %}
-<h1>📋 Mes annonces</h1>
-<a href="{{ url_for('annonces.publier') }}"><button>➕ Nouvelle annonce</button></a>
-
-{% for annonce in annonces %}
-<div class="card">
-    <h3>{{ annonce.titre }}</h3>
-    <p><strong>{{ annonce.prix|int }} DA</strong> — {{ annonce.surface|int }} m²</p>
-    <p>📍 {{ annonce.adresse }}</p>
-    <p>
-        Statut :
-        {% if annonce.statut == 'EN_ATTENTE' %}
-        <span class="badge badge-warning">⏳ En attente</span>
-        {% elif annonce.statut == 'PUBLIEE' %}
-        <span class="badge badge-success">✅ Publiée</span>
-        {% elif annonce.statut == 'REJETEE' %}
-        <span class="badge badge-danger">❌ Rejetée</span>
-        {% elif annonce.statut == 'ARCHIVEE' %}
-        <span class="badge badge-secondary">📦 Archivée</span>
-        {% else %}
-        <span class="badge badge-secondary">{{ annonce.statut }}</span>
-        {% endif %}
-    </p>
-    <p>📅 {{ annonce.datePubli }}</p>
-
-    {% if annonce.statut in ['EN_ATTENTE', 'BROUILLON'] %}
-    <a href="{{ url_for('annonces.modifier', annonce_id=annonce.id) }}"><button>✏️ Modifier</button></a>
-    {% endif %}
-
-    <form class="inline-form" action="{{ url_for('annonces.supprimer', annonce_id=annonce.id) }}" method="POST"
-        onsubmit="return confirm('Supprimer cette annonce ?');">
-        <button type="submit" class="danger">🗑️ Supprimer</button>
-    </form>
+<!-- Section d'en-tête de la page de gestion des annonces de l'utilisateur -->
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <!-- Titre principal de la page -->
+            <h1>📁 Mon Espace Vendeur</h1>
+            <!-- Message descriptif -->
+            <p>Retrouvez et gérez l'ensemble de vos biens immobiliers publiés sur la plateforme.</p>
+        </div>
+        <!-- Bouton d'action pour publier un nouveau bien, renvoyant vers le blueprint annonces -->
+        <a href="{{ url_for('annonces.publier') }}" class="btn btn--md btn--primary">
+            ➕ Publier une annonce
+        </a>
+    </div>
 </div>
+
+<!-- Ligne de séparation stylisée de l'interface -->
+<hr class="divider">
+
+<!-- Structure conditionnelle Jinja2 : s'il y a des annonces associées au vendeur -->
+{% if annonces %}
+    <!-- Enveloppe responsive pour le tableau de données -->
+    <div class="table-wrap">
+        <table>
+            <!-- En-tête du tableau -->
+            <thead>
+                <tr>
+                    <!-- Titre et adresse du bien -->
+                    <th>Annonce</th>
+                    <!-- Prix de vente/location et surface habitable -->
+                    <th>Détails du bien</th>
+                    <!-- Date d'enregistrement dans le système -->
+                    <th>Date de dépôt</th>
+                    <!-- Statut actuel de modération administrative -->
+                    <th>Statut</th>
+                    <!-- Boutons d'édition et de suppression -->
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <!-- Corps du tableau -->
+            <tbody>
+                <!-- Boucle de parcours de chaque annonce récupérée depuis la base de données par le contrôleur Flask -->
+                {% for annonce in annonces %}
+                    <tr>
+                        <!-- Première cellule : Titre cliquable (si publié) et adresse physique -->
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                                <strong style="color: var(--text-primary); font-family: 'Syne', sans-serif; font-size: 1rem;">
+                                    <!-- Si l'annonce est validée et publiée, elle est cliquable vers sa page publique de détails -->
+                                    {% if annonce.statut == 'PUBLIEE' %}
+                                        <a href="{{ url_for('detail_annonce', annonce_id=annonce.id) }}" style="transition: color var(--dur) var(--ease);" onmouseover="this.style.color='var(--cyan)'" onmouseout="this.style.color='var(--text-primary)'">
+                                            {{ annonce.titre }}
+                                        </a>
+                                    {% else %}
+                                        <!-- Sinon, on l'affiche sous forme de texte simple car la page de détail filtre par PUBLIEE uniquement -->
+                                        <span style="color: var(--text-secondary); cursor: not-allowed;" title="Cette annonce sera visible en ligne après validation par la modération.">
+                                            {{ annonce.titre }} (hors ligne)
+                                        </span>
+                                    {% endif %}
+                                </strong>
+                                <!-- Localisation géographique (wilaya/adresse) -->
+                                <span style="font-size: 0.8rem; color: var(--text-muted); display: flex; align-items: center; gap: 0.25rem;">
+                                    📍 {{ annonce.adresse }}
+                                </span>
+                            </div>
+                        </td>
+                        
+                        <!-- Deuxième cellule : Spécifications financières et physiques -->
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 0.15rem;">
+                                <!-- Prix du bien formaté en dinars algériens (DA) -->
+                                <span style="color: var(--pink); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;">
+                                    {{ annonce.prix|int }} DA
+                                </span>
+                                <!-- Surface du bien exprimée en mètres carrés (m²) -->
+                                <span style="font-size: 0.8rem; color: var(--text-secondary);">
+                                    📐 {{ annonce.surface|int }} m²
+                                </span>
+                            </div>
+                        </td>
+                        
+                        <!-- Troisième cellule : Date de dépôt de l'annonce -->
+                        <td>
+                            <span style="font-size: 0.85rem; color: var(--text-secondary);">
+                                📅 {{ annonce.datePubli }}
+                            </span>
+                        </td>
+                        
+                        <!-- Quatrième cellule : Badge d'état de modération dynamique -->
+                        <td>
+                            {# Affichage des statuts avec les couleurs appropriées définies dans style.css #}
+                            {% if annonce.statut == 'PUBLIEE' %}
+                                <span class="badge badge--publiee">Publiée</span>
+                            {% elif annonce.statut == 'EN_ATTENTE' %}
+                                <span class="badge badge--en_attente">En attente</span>
+                            {% elif annonce.statut == 'REJETEE' %}
+                                <span class="badge badge--rejetee">Rejetée</span>
+                            {% elif annonce.statut == 'ARCHIVEE' %}
+                                <span class="badge badge--archivee">Archivée</span>
+                            {% else %}
+                                <span class="badge badge--brouillon">{{ annonce.statut }}</span>
+                            {% endif %}
+                        </td>
+                        
+                        <!-- Cinquième cellule : Boutons d'actions pour le cycle de vie du bien -->
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+                                {# Sécurité : la route de modification du backend (modifier() dans annonces.py) restreint l'édition aux statuts EN_ATTENTE et BROUILLON. #}
+                                {% if annonce.statut in ('EN_ATTENTE', 'BROUILLON') %}
+                                    <!-- Lien vers le formulaire de modification de l'annonce -->
+                                    <a href="{{ url_for('annonces.modifier', annonce_id=annonce.id) }}" class="btn btn--sm btn--ghost" style="border-color: var(--cyan); color: var(--cyan);">
+                                        ✏️ Modifier
+                                    </a>
+                                {% else %}
+                                    <!-- Bouton de modification désactivé pour éviter de violer les règles du backend si l'annonce est validée/publiée ou rejetée -->
+                                    <button class="btn btn--sm btn--ghost" disabled title="Modification impossible dans cet état (seuls les brouillons et les annonces en attente sont modifiables).">
+                                        ✏️ Modifier
+                                    </button>
+                                {% endif %}
+
+                                {# Bouton de suppression sécurisé par une requête POST pour empêcher le CSRF et les clics involontaires #}
+                                <form action="{{ url_for('annonces.supprimer', annonce_id=annonce.id) }}" method="POST" onsubmit="return confirm('Attention ! Êtes-vous sûr de vouloir supprimer définitivement cette annonce et tous les fichiers médias associés ? Cette opération est irréversible.');" style="display: inline;">
+                                    <button type="submit" class="btn btn--sm btn--danger">
+                                        🗑️ Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% else %}
-<div class="card">
-    <p>Vous n'avez publié aucune annonce.</p>
-    <a href="{{ url_for('annonces.publier') }}"><button>➕ Publier une annonce</button></a>
-</div>
-{% endfor %}
+    <!-- Interface affichée s'il n'y a aucune annonce liée au compte (État vide / Empty state) -->
+    <div class="empty-state">
+        <div class="empty-state__icon">📁</div>
+        <div class="empty-state__title">Aucune annonce enregistrée</div>
+        <p style="color: var(--text-secondary); max-width: 420px; margin-bottom: 1.5rem; line-height: 1.6;">
+            Vous n'avez pas encore d'annonces immobilières sur votre compte vendeur. Commencez à publier des appartements, villas ou locaux commerciaux dès aujourd'hui !
+        </p>
+        <!-- Bouton d'invitation à la publication d'un premier bien -->
+        <a href="{{ url_for('annonces.publier') }}" class="btn btn--md btn--primary">
+            ➕ Publier ma première annonce
+        </a>
+    </div>
+{% endif %}
 {% endblock %}
