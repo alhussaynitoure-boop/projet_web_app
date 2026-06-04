@@ -197,7 +197,16 @@
     <div class="auth-card">
 
         <h1>🔑 Se connecter</h1>
-        <div class="alert alert-{{ category }}"></div>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{% if category == 'error' %}danger{% else %}{{ category }}{% endif %}">
+                        <span>{% if category == 'success' %}🟢{% else %}🔴{% endif %}</span>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <form method="POST">
             <label>Email *</label>
             <input type="email" name="email" required placeholder="votre@email.com">

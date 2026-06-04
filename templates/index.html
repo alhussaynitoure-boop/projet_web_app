@@ -1,23 +1,437 @@
-{% extends "base.html" %} {% block title %}Accueil{% endblock %} {% block content %}
-<h1>Annonces disponibles</h1>
-<p>{{ annonces|length }} annonce(s) trouvée(s)</p>
+{% extends "base.html" %}
 
-{% for annonce in annonces %}
-<div class="card">
-    {% if annonce.id in photos %}
-    <img src="{{ photos[annonce.id] }}" alt="Photo"> {% else %}
-    <p><em>📷 Aucune photo</em></p>
-    {% endif %}
-    <h3><a href="{{ url_for('detail_annonce', annonce_id=annonce.id) }}">{{ annonce.titre }}</a></h3>
-    <p><strong>{{ annonce.prix|int }} DA</strong> — {{ annonce.surface|int }} m² — {{ annonce.type_bien }}</p>
-    <p>📍 {{ annonce.adresse }}</p>
-    <p>👤 Vendeur : {{ annonce.vendeur_nom }}</p>
-    <p>📅 {{ annonce.datePubli }}</p>
+{% block title %}Accueil - DZ-Immobilier{% endblock %}
+
+{% block styles %}
+<style>
+    /* =========================================================================
+       DZ-Immobilier — styles spécifiques pour la page d'accueil (index.html)
+       ========================================================================= */
+    .search-hero {
+        background: radial-gradient(circle at 80% 20%, rgba(0, 212, 212, 0.08) 0%, transparent 50%),
+                    radial-gradient(circle at 10% 80%, rgba(233, 30, 140, 0.08) 0%, transparent 50%),
+                    var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2rem;
+        margin-bottom: 2.5rem;
+        box-shadow: var(--shadow-card);
+    }
+    
+    .search-hero__title {
+        font-size: 1.5rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(90deg, var(--text-primary), var(--text-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .search-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1.5fr;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
+    }
+    
+    .search-grid__price-range {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+    }
+
+    .search-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top: 1px solid var(--border);
+        padding-top: 1.25rem;
+        margin-top: 1.25rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .search-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .search-tag {
+        font-size: 0.75rem;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        padding: 0.3rem 0.75rem;
+        border-radius: var(--radius-pill);
+        color: var(--text-secondary);
+        transition: all var(--dur) var(--ease);
+        cursor: pointer;
+    }
+
+    .search-tag:hover {
+        border-color: var(--pink-accent);
+        color: var(--text-primary);
+        background: rgba(233, 30, 140, 0.05);
+    }
+
+    /* Grille et cartes d'annonces */
+    .annonces-section-header {
+        margin-bottom: 1.5rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .annonce-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .annonce-card__image-container {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16/10;
+        overflow: hidden;
+        background: #10121a;
+    }
+
+    .annonce-card__img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.4s var(--ease);
+    }
+
+    .annonce-card:hover .annonce-card__img {
+        transform: scale(1.04);
+    }
+
+    .annonce-card__badge-verif {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        background: rgba(13, 15, 20, 0.75);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(0, 212, 212, 0.3);
+        color: var(--cyan);
+        font-weight: 700;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: var(--radius-pill);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .annonce-card__badge-type {
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
+        z-index: 2;
+        background: rgba(233, 30, 140, 0.85);
+        color: #fff;
+        font-weight: 600;
+        font-size: 0.68rem;
+        padding: 0.15rem 0.5rem;
+        border-radius: var(--radius-sm);
+        text-transform: uppercase;
+    }
+
+    .annonce-card__body {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+
+    .annonce-card__location {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        margin-bottom: 0.4rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .annonce-card__title {
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.4;
+        margin-bottom: 0.75rem;
+        color: var(--text-primary);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 2.8rem;
+    }
+
+    .annonce-card__details {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        padding: 0.6rem 0;
+        margin-bottom: 1rem;
+    }
+
+    .annonce-card__price-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        margin-top: auto;
+    }
+
+    .annonce-card__price {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--pink);
+        font-family: 'Syne', sans-serif;
+    }
+
+    .annonce-card__price-m2 {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+    }
+
+    @media (max-width: 900px) {
+        .search-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    @media (max-width: 600px) {
+        .search-grid {
+            grid-template-columns: 1fr;
+        }
+        .search-hero {
+            padding: 1.25rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Section du formulaire de recherche de biens -->
+<div class="search-hero">
+    <h2 class="search-hero__title">🔍 Rechercher un bien d'exception</h2>
+    
+    <form method="GET" action="{{ url_for('index') }}" class="form">
+        <div class="search-grid">
+            <!-- Recherche par mot-clé -->
+            <div class="form__group">
+                <label class="form__label" for="q">Mots-clés</label>
+                <input type="text" name="q" id="q" value="{{ q or '' }}" class="form__input" placeholder="Ex: villa moderne, vue mer, terrasse...">
+            </div>
+            
+            <!-- Choix de la Wilaya (58 Wilayas d'Algérie) -->
+            <div class="form__group">
+                <label class="form__label" for="wilaya">Wilaya</label>
+                <select name="wilaya" id="wilaya" class="form__select">
+                    <option value="Toutes" {% if not wilaya or wilaya == 'Toutes' %}selected{% endif %}>Toutes les wilayas</option>
+                    <option value="Adrar" {% if wilaya == 'Adrar' %}selected{% endif %}>01 - Adrar</option>
+                    <option value="Chlef" {% if wilaya == 'Chlef' %}selected{% endif %}>02 - Chlef</option>
+                    <option value="Laghouat" {% if wilaya == 'Laghouat' %}selected{% endif %}>03 - Laghouat</option>
+                    <option value="Oum El Bouaghi" {% if wilaya == 'Oum El Bouaghi' %}selected{% endif %}>04 - Oum El Bouaghi</option>
+                    <option value="Batna" {% if wilaya == 'Batna' %}selected{% endif %}>05 - Batna</option>
+                    <option value="Béjaïa" {% if wilaya == 'Béjaïa' %}selected{% endif %}>06 - Béjaïa</option>
+                    <option value="Biskra" {% if wilaya == 'Biskra' %}selected{% endif %}>07 - Biskra</option>
+                    <option value="Béchar" {% if wilaya == 'Béchar' %}selected{% endif %}>08 - Béchar</option>
+                    <option value="Blida" {% if wilaya == 'Blida' %}selected{% endif %}>09 - Blida</option>
+                    <option value="Bouira" {% if wilaya == 'Bouira' %}selected{% endif %}>10 - Bouira</option>
+                    <option value="Tamanrasset" {% if wilaya == 'Tamanrasset' %}selected{% endif %}>11 - Tamanrasset</option>
+                    <option value="Tébessa" {% if wilaya == 'Tébessa' %}selected{% endif %}>12 - Tébessa</option>
+                    <option value="Tlemcen" {% if wilaya == 'Tlemcen' %}selected{% endif %}>13 - Tlemcen</option>
+                    <option value="Tiaret" {% if wilaya == 'Tiaret' %}selected{% endif %}>14 - Tiaret</option>
+                    <option value="Tizi Ouzou" {% if wilaya == 'Tizi Ouzou' %}selected{% endif %}>15 - Tizi Ouzou</option>
+                    <option value="Alger" {% if wilaya == 'Alger' %}selected{% endif %}>16 - Alger</option>
+                    <option value="Djelfa" {% if wilaya == 'Djelfa' %}selected{% endif %}>17 - Djelfa</option>
+                    <option value="Jijel" {% if wilaya == 'Jijel' %}selected{% endif %}>18 - Jijel</option>
+                    <option value="Sétif" {% if wilaya == 'Sétif' %}selected{% endif %}>19 - Sétif</option>
+                    <option value="Saïda" {% if wilaya == 'Saïda' %}selected{% endif %}>20 - Saïda</option>
+                    <option value="Skikda" {% if wilaya == 'Skikda' %}selected{% endif %}>21 - Skikda</option>
+                    <option value="Sidi Bel Abbès" {% if wilaya == 'Sidi Bel Abbès' %}selected{% endif %}>22 - Sidi Bel Abbès</option>
+                    <option value="Annaba" {% if wilaya == 'Annaba' %}selected{% endif %}>23 - Annaba</option>
+                    <option value="Guelma" {% if wilaya == 'Guelma' %}selected{% endif %}>24 - Guelma</option>
+                    <option value="Constantine" {% if wilaya == 'Constantine' %}selected{% endif %}>25 - Constantine</option>
+                    <option value="Médéa" {% if wilaya == 'Médéa' %}selected{% endif %}>26 - Médéa</option>
+                    <option value="Mostaganem" {% if wilaya == 'Mostaganem' %}selected{% endif %}>27 - Mostaganem</option>
+                    <option value="M'Sila" {% if wilaya == 'M\'Sila' %}selected{% endif %}>28 - M'Sila</option>
+                    <option value="Mascara" {% if wilaya == 'Mascara' %}selected{% endif %}>29 - Mascara</option>
+                    <option value="Ouargla" {% if wilaya == 'Ouargla' %}selected{% endif %}>30 - Ouargla</option>
+                    <option value="Oran" {% if wilaya == 'Oran' %}selected{% endif %}>31 - Oran</option>
+                    <option value="El Bayadh" {% if wilaya == 'El Bayadh' %}selected{% endif %}>32 - El Bayadh</option>
+                    <option value="Illizi" {% if wilaya == 'Illizi' %}selected{% endif %}>33 - Illizi</option>
+                    <option value="Bordj Bou Arréridj" {% if wilaya == 'Bordj Bou Arréridj' %}selected{% endif %}>34 - Bordj Bou Arréridj</option>
+                    <option value="Boumerdès" {% if wilaya == 'Boumerdès' %}selected{% endif %}>35 - Boumerdès</option>
+                    <option value="El Tarf" {% if wilaya == 'El Tarf' %}selected{% endif %}>36 - El Tarf</option>
+                    <option value="Tindouf" {% if wilaya == 'Tindouf' %}selected{% endif %}>37 - Tindouf</option>
+                    <option value="Tissemsilt" {% if wilaya == 'Tissemsilt' %}selected{% endif %}>38 - Tissemsilt</option>
+                    <option value="El Oued" {% if wilaya == 'El Oued' %}selected{% endif %}>39 - El Oued</option>
+                    <option value="Khenchela" {% if wilaya == 'Khenchela' %}selected{% endif %}>40 - Khenchela</option>
+                    <option value="Souk Ahras" {% if wilaya == 'Souk Ahras' %}selected{% endif %}>41 - Souk Ahras</option>
+                    <option value="Tipaza" {% if wilaya == 'Tipaza' %}selected{% endif %}>42 - Tipaza</option>
+                    <option value="Mila" {% if wilaya == 'Mila' %}selected{% endif %}>43 - Mila</option>
+                    <option value="Aïn Defla" {% if wilaya == 'Aïn Defla' %}selected{% endif %}>44 - Aïn Defla</option>
+                    <option value="Naâma" {% if wilaya == 'Naâma' %}selected{% endif %}>45 - Naâma</option>
+                    <option value="Aïn Témouchent" {% if wilaya == 'Aïn Témouchent' %}selected{% endif %}>46 - Aïn Témouchent</option>
+                    <option value="Ghardaïa" {% if wilaya == 'Ghardaïa' %}selected{% endif %}>47 - Ghardaïa</option>
+                    <option value="Relizane" {% if wilaya == 'Relizane' %}selected{% endif %}>48 - Relizane</option>
+                    <option value="El M'Ghair" {% if wilaya == 'El M\'Ghair' %}selected{% endif %}>49 - El M'Ghair</option>
+                    <option value="El Meniaa" {% if wilaya == 'El Meniaa' %}selected{% endif %}>50 - El Meniaa</option>
+                    <option value="Ouled Djellal" {% if wilaya == 'Ouled Djellal' %}selected{% endif %}>51 - Ouled Djellal</option>
+                    <option value="Bordj Badji Mokhtar" {% if wilaya == 'Bordj Badji Mokhtar' %}selected{% endif %}>52 - Bordj Badji Mokhtar</option>
+                    <option value="Béni Abbès" {% if wilaya == 'Béni Abbès' %}selected{% endif %}>53 - Béni Abbès</option>
+                    <option value="Timimoun" {% if wilaya == 'Timimoun' %}selected{% endif %}>54 - Timimoun</option>
+                    <option value="Touggourt" {% if wilaya == 'Touggourt' %}selected{% endif %}>55 - Touggourt</option>
+                    <option value="Djanet" {% if wilaya == 'Djanet' %}selected{% endif %}>56 - Djanet</option>
+                    <option value="In Salah" {% if wilaya == 'In Salah' %}selected{% endif %}>57 - In Salah</option>
+                    <option value="In Guezzam" {% if wilaya == 'In Guezzam' %}selected{% endif %}>58 - In Guezzam</option>
+                </select>
+            </div>
+            
+            <!-- Type de bien -->
+            <div class="form__group">
+                <label class="form__label" for="type_bien">Type</label>
+                <select name="type_bien" id="type_bien" class="form__select">
+                    <option value="Tous" {% if not type_bien or type_bien == 'Tous' %}selected{% endif %}>Tous types</option>
+                    <option value="APPARTEMENT" {% if type_bien == 'APPARTEMENT' %}selected{% endif %}>Appartement</option>
+                    <option value="MAISON" {% if type_bien == 'MAISON' %}selected{% endif %}>Maison</option>
+                    <option value="TERRAIN" {% if type_bien == 'TERRAIN' %}selected{% endif %}>Terrain</option>
+                    <option value="COMMERCIAL" {% if type_bien == 'COMMERCIAL' %}selected{% endif %}>Commercial</option>
+                </select>
+            </div>
+            
+            <!-- Fourchette de prix -->
+            <div class="form__group">
+                <label class="form__label">Budget (DA)</label>
+                <div class="search-grid__price-range">
+                    <input type="number" name="prix_min" value="{{ prix_min|int if prix_min is not none else '' }}" placeholder="Min" class="form__input" min="0">
+                    <input type="number" name="prix_max" value="{{ prix_max|int if prix_max is not none else '' }}" placeholder="Max" class="form__input" min="0">
+                </div>
+            </div>
+        </div>
+
+        <div class="search-bottom">
+            <!-- Raccourcis ou critères populaires -->
+            <div class="search-tags">
+                <span class="search-tag" onclick="document.getElementById('type_bien').value='MAISON'; this.closest('form').submit();">🏡 Maisons</span>
+                <span class="search-tag" onclick="document.getElementById('type_bien').value='APPARTEMENT'; this.closest('form').submit();">🏢 Appartements</span>
+                <span class="search-tag" onclick="document.getElementById('wilaya').value='Alger'; this.closest('form').submit();">📍 Alger</span>
+                <span class="search-tag" onclick="document.getElementById('wilaya').value='Oran'; this.closest('form').submit();">🌅 Oran</span>
+            </div>
+
+            <!-- Boutons de soumission et Tri -->
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <label class="form__label" for="tri" style="margin-bottom:0; white-space:nowrap;">Trier par :</label>
+                    <select name="tri" id="tri" class="form__select" onchange="this.closest('form').submit();" style="padding: 0.4rem 1.5rem 0.4rem 0.75rem; font-size: 0.8rem;">
+                        <option value="date" {% if tri == 'date' %}selected{% endif %}>Date (récent)</option>
+                        <option value="prix_asc" {% if tri == 'prix_asc' %}selected{% endif %}>Prix croissant</option>
+                        <option value="prix_desc" {% if tri == 'prix_desc' %}selected{% endif %}>Prix décroissant</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn--md btn--primary">
+                    🔍 Explorer
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
+
+<!-- En-tête des résultats -->
+<div class="annonces-section-header">
+    <h2>✨ Propriétés exclusives</h2>
+    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+        <strong>{{ annonces|length }}</strong> bien(s) disponible(s)
+    </p>
+</div>
+
+<!-- Grille des annonces -->
+{% if annonces %}
+    <div class="grid-3">
+        {% for annonce in annonces %}
+            <div class="card annonce-card">
+                <!-- Visuel de l'annonce -->
+                <div class="annonce-card__image-container">
+                    <span class="annonce-card__badge-verif">🛡️ Vérifié</span>
+                    <span class="annonce-card__badge-type">{{ annonce.type_bien }}</span>
+                    {% if annonce.id in photos %}
+                        <img src="{{ url_for('static', filename=photos[annonce.id].replace('static/', '')) if photos[annonce.id].startswith('static/') else url_for('static', filename='uploads/' + photos[annonce.id]) }}" alt="{{ annonce.titre }}" class="annonce-card__img">
+                    {% else %}
+                        <!-- Image de remplacement si aucune photo n'existe -->
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-muted); background: #141722; font-size: 0.85rem;">
+                            <span>📷 Aucune photo</span>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Corps de la carte -->
+                <div class="annonce-card__body">
+                    <!-- Adresse / Ville -->
+                    <div class="annonce-card__location">
+                        📍 {{ annonce.adresse }}
+                    </div>
+                    
+                    <!-- Titre -->
+                    <h3 class="annonce-card__title">
+                        <a href="{{ url_for('detail_annonce', annonce_id=annonce.id) }}">
+                            {{ annonce.titre }}
+                        </a>
+                    </h3>
+                    
+                    <!-- Caractéristiques principales -->
+                    <div class="annonce-card__details">
+                        <span>📐 <strong>{{ annonce.surface|int }}</strong> m²</span>
+                        <span>👤 Vendeur: <strong>{{ annonce.vendeur_nom }}</strong></span>
+                    </div>
+                    
+                    <!-- Ligne financière -->
+                    <div class="annonce-card__price-row">
+                        <span class="annonce-card__price">
+                            {{ annonce.prix|int }} DA
+                        </span>
+                        
+                        {# Calcul dynamique du prix au m² via Jinja2 #}
+                        {% if annonce.surface > 0 %}
+                            <span class="annonce-card__price-m2">
+                                {{ (annonce.prix / annonce.surface) | int }} DA/m²
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Lien d'accès au détail -->
+                <div class="card__footer">
+                    <span style="font-size: 0.75rem; color: var(--text-muted);">
+                        📅 {{ annonce.datePubli }}
+                    </span>
+                    <a href="{{ url_for('detail_annonce', annonce_id=annonce.id) }}" class="btn btn--sm btn--secondary">
+                        Détails →
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% else %}
-<div class="card">
-    <p>Aucune annonce publiée pour le moment.</p>
-    {% if session.role == 'VENDEUR' %}
-    <a href="{{ url_for('annonces.publier') }}">➕ Publier une annonce</a> {% endif %}
-</div>
-{% endfor %} {% endblock %}
+    <!-- Cas vide si aucun bien ne correspond aux filtres -->
+    <div class="empty-state">
+        <div class="empty-state__icon">🔍</div>
+        <div class="empty-state__title">Aucun bien ne correspond à vos critères</div>
+        <p style="color: var(--text-secondary); max-width: 400px; margin-bottom: 1.5rem;">
+            Essayez de modifier ou de réinitialiser vos filtres (mots-clés, wilaya, budget) pour élargir vos résultats.
+        </p>
+        <a href="{{ url_for('index') }}" class="btn btn--md btn--primary">
+            🔄 Réinitialiser les filtres
+        </a>
+    </div>
+{% endif %}
+
+{% endblock %}

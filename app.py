@@ -85,72 +85,59 @@ def index():
     db = get_db()
     
     # ── 1. Récupération des paramètres de filtre ───────────────────────────
-    # request.args.get('cle', type=float) :
-    #   - Lit le paramètre URL ?cle=valeur
-    #   - Convertit automatiquement en float (nombre décimal)
-    #   - Retourne None si le paramètre est absent
-    
     prix_min = request.args.get('prix_min', type=float)
-    # Ex: /?prix_min=1000000 → prix_min = 1000000.0
-    # Ex: / (sans paramètre) → prix_min = None
-    
     prix_max = request.args.get('prix_max', type=float)
-    # Même principe pour le prix maximum
-    
     tri = request.args.get('tri', 'date')
-    # Valeur par défaut : 'date' si aucun tri spécifié
-    # Valeurs acceptées : 'date', 'prix_asc', 'prix_desc'
+    q = request.args.get('q', '').strip()
+    wilaya = request.args.get('wilaya', '').strip()
+    type_bien = request.args.get('type_bien', '').strip()
     
     # ── 2. Validation du paramètre de tri ──────────────────────────────────
-    # Sécurité : si l'utilisateur met ?tri=hacker, on force 'date'
     if tri not in ('date', 'prix_asc', 'prix_desc'):
         tri = 'date'
     
     # ── 3. Construction dynamique de la requête SQL ────────────────────────
-    # On construit la clause WHERE et les paramètres petit à petit
-    
     conditions = ["a.statut = 'PUBLIEE'"]
-    # Liste des conditions WHERE. On commence toujours par le statut PUBLIEE
-    
     params = []
-    # Liste des valeurs à substituer aux '?' (protection injection SQL)
     
-    # ── 3a. Filtre prix minimum ────────────────────────────────────────────
+    # Filtre de recherche textuelle (titre/description)
+    if q:
+        conditions.append("(a.titre LIKE ? OR a.description LIKE ?)")
+        params.append(f"%{q}%")
+        params.append(f"%{q}%")
+        
+    # Filtre par Wilaya
+    if wilaya and wilaya.upper() != 'TOUTES':
+        conditions.append("b.adresse LIKE ?")
+        params.append(f"%{wilaya}%")
+        
+    # Filtre par Type de bien
+    if type_bien and type_bien.upper() != 'TOUS':
+        conditions.append("b.type = ?")
+        params.append(type_bien.upper())
+    
+    # Filtre prix minimum
     if prix_min is not None:
-        # Si l'utilisateur a spécifié un prix minimum
         conditions.append("a.prix >= ?")
-        # On ajoute la condition SQL : prix doit être >= ?
         params.append(prix_min)
-        # On ajoute la valeur dans la liste des paramètres
     
-    # ── 3b. Filtre prix maximum ────────────────────────────────────────────
+    # Filtre prix maximum
     if prix_max is not None:
         conditions.append("a.prix <= ?")
         params.append(prix_max)
-        # Même principe pour le prix max
     
     # ── 3c. Assemblage de la clause WHERE ──────────────────────────────────
     where_clause = " AND ".join(conditions)
-    # "a.statut = 'PUBLIEE'" 
-    #   → si prix_min ajouté : "a.statut = 'PUBLIEE' AND a.prix >= ?"
-    #   → si les deux : "a.statut = 'PUBLIEE' AND a.prix >= ? AND a.prix <= ?"
     
     # ── 3d. Clause ORDER BY (tri) ─────────────────────────────────────────
     if tri == 'prix_asc':
         order_clause = "a.prix ASC"
-        # ASC = Ascending = croissant (moins cher → plus cher)
     elif tri == 'prix_desc':
         order_clause = "a.prix DESC"
-        # DESC = Descending = décroissant (plus cher → moins cher)
     else:
         order_clause = "a.datePubli DESC"
-        # Par défaut : date décroissante (plus récent d'abord)
     
     # ── 4. Exécution de la requête SQL ─────────────────────────────────────
-    # f-string pour injecter where_clause et order_clause (ce sont sûrs,
-    # construits par nous, pas par l'utilisateur)
-    # Les '?' dans params sont protégés contre l'injection SQL
-    
     annonces = db.execute(
         f"""
         SELECT 
@@ -174,7 +161,6 @@ def index():
     ).fetchall()
     
     # ── 5. Récupération des photos principales ─────────────────────────────
-    # (identique à avant, mais on ne récupère que pour les annonces filtrées)
     photos = {}
     if annonces:
         ids = [a['id'] for a in annonces]
@@ -194,17 +180,16 @@ def index():
             photos[p['id_annonce']] = p['url']
     
     # ── 6. Passage des filtres actuels au template ─────────────────────────
-    # Pour que le template puisse :
-    #   - Afficher les valeurs actuelles dans les champs de formulaire
-    #   - Construire les liens de tri (ex: lien "Trier par prix" garde le filtre prix_min)
-    
     return render_template(
         'index.html',
         annonces=annonces,
         photos=photos,
-        prix_min=prix_min,      # ← Nouveau : pour afficher la valeur dans le formulaire
-        prix_max=prix_max,      # ← Nouveau
-        tri=tri                 # ← Nouveau : pour savoir quel tri est actif
+        prix_min=prix_min,
+        prix_max=prix_max,
+        tri=tri,
+        q=q,
+        wilaya=wilaya,
+        type_bien=type_bien
     )
 
 

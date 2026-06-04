@@ -472,22 +472,42 @@
                 <div class="card-title">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Vendeur
                 </div>
-                <div class="seller-profile">
-                    <div class="seller-avatar">
-                        {{ annonce.vendeur_nom[0]|upper if annonce.vendeur_nom else '?' }}
+                {% if session.get('user_id') %}
+                    <div class="seller-profile">
+                        <div class="seller-avatar">
+                            {{ annonce.vendeur_nom[0]|upper if annonce.vendeur_nom else '?' }}
+                        </div>
+                        <div>
+                            <div class="seller-name">{{ annonce.vendeur_nom }}</div>
+                            <div class="seller-email">{{ annonce.vendeur_email }}</div>
+                        </div>
                     </div>
-                    <div>
-                        <div class="seller-name">{{ annonce.vendeur_nom }}</div>
-                        <div class="seller-email">{{ annonce.vendeur_email }}</div>
+                    <a href="mailto:{{ annonce.vendeur_email }}" class="btn btn-primary">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Contacter par email
+                    </a>
+                    {% if annonce.telephone %}
+                        <a href="tel:{{ annonce.telephone }}" class="btn btn-outline" style="margin-top:10px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.9 2 2 0 0 1 3.58 2.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.26a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                            Appeler: {{ annonce.telephone }}
+                        </a>
+                    {% endif %}
+                {% else %}
+                    <div style="text-align: center; padding: 1rem 0;">
+                        <span style="font-size: 2.2rem; display: block; margin-bottom: 0.5rem;">🔒</span>
+                        <h4 style="font-family: 'Syne', sans-serif; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-primary);">Coordonnées verrouillées</h4>
+                        <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 1.25rem;">
+                            Veuillez vous connecter ou vous inscrire pour voir les coordonnées de ce vendeur.
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                            <a href="{{ url_for('auth.connexion', next=request.path) }}" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.5rem 1.2rem; width: 100%;">
+                                Se connecter
+                            </a>
+                            <a href="{{ url_for('auth.inscription') }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.5rem 1.2rem; width: 100%; margin-top:0;">
+                                S'inscrire
+                            </a>
+                        </div>
                     </div>
-                </div>
-                <a href="mailto:{{ annonce.vendeur_email }}" class="btn btn-primary">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Contacter
-                    le vendeur
-                </a>
-                <a href="tel:" class="btn btn-outline" style="margin-top:10px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.9 2 2 0 0 1 3.58 2.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.26a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>                    Appeler
-                </a>
+                {% endif %}
             </div>
 
             <!-- Autres annonces -->

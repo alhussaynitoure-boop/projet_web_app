@@ -1,244 +1,139 @@
+{% extends "base.html" %}
+
+{% block title %}Publier une annonce - DZ-Immobilier{% endblock %}
+
+{% block styles %}
 <style>
-    /* ===== RESET & BASE ===== */
-    
-    *,
-    *::before,
-    *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-    
-    body {
-        background: #0d0d0d;
-        color: #e0e0e0;
-        font-family: 'Segoe UI', system-ui, sans-serif;
-        font-size: 14px;
-        min-height: 100vh;
-    }
-    /* ===== NAVBAR ===== */
-    
-    .navbar {
-        background: #111;
-        border-bottom: 1px solid #222;
-        padding: 0 32px;
-        height: 56px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    }
-    
-    .navbar-brand {
-        font-size: 20px;
-        font-weight: 700;
-        background: linear-gradient(90deg, #00d4d4, #ff3c7e);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-decoration: none;
-    }
-    
-    .navbar-links {
-        display: flex;
-        align-items: center;
-        gap: 28px;
-        list-style: none;
-    }
-    
-    .navbar-links a {
-        color: #aaa;
-        text-decoration: none;
-        font-size: 14px;
-        transition: color 0.2s;
-    }
-    
-    .navbar-links a:hover {
-        color: #fff;
-    }
-    
-    .navbar-links a.active {
-        color: #ff3c7e;
-        border-bottom: 2px solid #ff3c7e;
-        padding-bottom: 2px;
-    }
-    
-    .navbar-icons {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-    
-    .navbar-avatar {
-        width: 34px;
-        height: 34px;
-        background: #333;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #aaa;
-        cursor: pointer;
-    }
-    
-    .navbar-bell {
-        color: #aaa;
-        cursor: pointer;
-        font-size: 18px;
-    }
-    /* ===== PAGE LAYOUT ===== */
-    
+    /* =========================================================================
+       DZ-Immobilier — styles spécifiques pour la publication (publier.html)
+       ========================================================================= */
     .page-wrapper {
-        max-width: 1100px;
+        max-width: 1000px;
         margin: 0 auto;
-        padding: 28px 24px 120px;
+        padding-bottom: 120px;
     }
     
     .page-header {
-        margin-bottom: 24px;
+        margin-bottom: 2rem;
     }
     
     .page-header h1 {
-        font-size: 20px;
-        font-weight: 600;
-        color: #fff;
-        margin-bottom: 4px;
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
     }
     
     .page-header p {
-        color: #888;
-        font-size: 13px;
+        color: var(--text-secondary);
+        font-size: 0.95rem;
     }
-    /* ===== STEPPER ===== */
     
+    /* Stepper */
     .stepper {
         display: flex;
-        gap: 0;
-        margin-bottom: 28px;
-        border-bottom: 1px solid #222;
-        padding-bottom: 0;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 0.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .stepper::-webkit-scrollbar {
+        display: none;
     }
     
     .step {
         flex: 1;
         padding-bottom: 10px;
-        padding-right: 8px;
-        font-size: 11px;
-        font-weight: 600;
+        font-family: 'Syne', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        color: #555;
+        color: var(--text-muted);
         border: none;
         border-bottom: 2px solid transparent;
         background: none;
-        font-family: inherit;
         cursor: pointer;
-        transition: all 0.2s;
-        text-align: left;
+        transition: all var(--dur) var(--ease);
+        text-align: center;
+        white-space: nowrap;
     }
     
     .step.active {
-        color: #00d4d4;
-        border-bottom: 2px solid #00d4d4;
+        color: var(--cyan);
+        border-bottom: 2px solid var(--cyan);
     }
     
     .step:hover:not(.active) {
-        color: #aaa;
-        border-bottom: 2px solid #444;
+        color: var(--text-secondary);
     }
-    /* ===== MAIN GRID ===== */
     
+    /* Main layout grid */
     .main-grid {
         display: grid;
-        grid-template-columns: 1fr 280px;
-        gap: 20px;
+        grid-template-columns: 1.8fr 1fr;
+        gap: 1.5rem;
         align-items: start;
     }
     
     .left-col {
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 1.5rem;
     }
-    /* ===== CARDS ===== */
-    
-    .card {
-        background: #161616;
-        border: 1px solid #252525;
-        border-radius: 14px;
-        padding: 20px;
+
+    .section {
+        display: none;
     }
     
+    .section.visible {
+        display: block;
+        animation: fadeIn 0.3s var(--ease);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(4px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Card design overrides */
     .card-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 20px;
+        margin-bottom: 1.5rem;
     }
     
     .card-title {
         display: flex;
         align-items: center;
         gap: 10px;
-        font-size: 15px;
-        font-weight: 600;
-        color: #fff;
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        font-family: 'Syne', sans-serif;
     }
     
     .card-title-icon {
-        width: 30px;
-        height: 30px;
-        background: #1e2a2a;
-        border-radius: 8px;
+        width: 32px;
+        height: 32px;
+        background: rgba(0, 212, 212, 0.1);
+        border-radius: var(--radius-sm);
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #00d4d4;
-        font-size: 14px;
+        color: var(--cyan);
+        font-size: 1rem;
     }
-    /* ===== FORM FIELDS ===== */
     
+    /* Form fields custom styling */
     .form-row {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 16px;
-        margin-bottom: 16px;
-    }
-    
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-    
-    .form-label {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #777;
-    }
-    
-    .form-control {
-        background: #111;
-        border: 1px solid #2a2a2a;
-        border-radius: 10px;
-        color: #e0e0e0;
-        padding: 11px 14px;
-        font-size: 14px;
-        outline: none;
-        transition: border-color 0.2s;
-        width: 100%;
-        appearance: none;
-    }
-    
-    .form-control:focus {
-        border-color: #00d4d4;
-    }
-    
-    .form-control::placeholder {
-        color: #444;
+        gap: 1rem;
+        margin-bottom: 1.25rem;
     }
     
     .select-wrapper {
@@ -248,16 +143,16 @@
     .select-wrapper::after {
         content: '▾';
         position: absolute;
-        right: 12px;
+        right: 14px;
         top: 50%;
         transform: translateY(-50%);
-        color: #555;
+        color: var(--text-muted);
         pointer-events: none;
         font-size: 12px;
     }
     
-    .select-wrapper select.form-control {
-        padding-right: 30px;
+    .select-wrapper select.form__select {
+        padding-right: 35px;
         cursor: pointer;
     }
     
@@ -266,7 +161,7 @@
     }
     
     .input-suffix input {
-        padding-right: 40px;
+        padding-right: 45px;
     }
     
     .suffix-label {
@@ -274,414 +169,99 @@
         right: 14px;
         top: 50%;
         transform: translateY(-50%);
-        color: #555;
-        font-size: 13px;
+        color: var(--text-muted);
+        font-size: 0.85rem;
     }
-    /* ===== ZONE DE POSITIONNEMENT — BOUTONS CLIQUABLES ===== */
-    
-    .price-zone-label {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #777;
-        margin-bottom: 8px;
-        display: block;
-    }
-    
-    .price-zone-row {
-        display: flex;
-        gap: 0;
-        border-radius: 10px;
-        overflow: hidden;
-        border: 1px solid #2a2a2a;
-        margin-bottom: 14px;
-    }
-    
-    .zone-link {
-        flex: 1;
-        padding: 10px 6px;
-        background: #111;
-        border-right: 1px solid #2a2a2a;
-        color: #666;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition: all 0.2s;
-        text-align: center;
-        font-family: inherit;
-        line-height: 1.4;
-        text-decoration: none;
-        display: block;
-    }
-    
-    .zone-link:last-child {
-        border-right: none;
-    }
-    
-    .zone-link:hover {
-        background: #1a1a1a;
-        color: #ccc;
-        text-decoration: none;
-    }
-    
-    .zone-link .zone-icon {
-        display: block;
-        font-size: 18px;
-        margin-bottom: 4px;
-    }
-    
-    .zone-link .zone-sub {
-        display: block;
-        font-size: 10px;
-        font-weight: 400;
-        opacity: 0.6;
-        margin-top: 2px;
-        text-transform: none;
-        letter-spacing: 0;
-    }
-    /* États actifs selon zone */
-    
-    .zone-link.zone-under.active {
-        background: #0a2410;
-        border-color: #00cc88;
-        color: #00cc88;
-        box-shadow: inset 0 -2px 0 #00cc88;
-    }
-    
-    .zone-link.zone-market.active {
-        background: #0d2a2a;
-        border-color: #00d4d4;
-        color: #00d4d4;
-        box-shadow: inset 0 -2px 0 #00d4d4;
-    }
-    
-    .zone-link.zone-over.active {
-        background: #2a1400;
-        border-color: #f97316;
-        color: #f97316;
-        box-shadow: inset 0 -2px 0 #f97316;
-    }
-    /* ===== BLOC FEEDBACK DzairAI ===== */
-    
-    .ai-panel {
-        border-radius: 10px;
-        padding: 14px;
-        font-size: 12px;
-        line-height: 1.6;
-        margin-bottom: 14px;
-        display: none;
-        transition: all 0.3s;
-    }
-    
-    .ai-panel.visible {
-        display: block;
-    }
-    
-    .ai-panel.green {
-        background: #0a2410;
-        border: 1px solid #00cc88;
-        color: #a0f0c8;
-    }
-    
-    .ai-panel.cyan {
-        background: #0d2a2a;
-        border: 1px solid #00d4d4;
-        color: #a0f0f0;
-    }
-    
-    .ai-panel.orange {
-        background: #2a1400;
-        border: 1px solid #f97316;
-        color: #ffd0a0;
-    }
-    
-    .ai-panel-header {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-weight: 700;
-        font-size: 13px;
-        margin-bottom: 6px;
-    }
-    
-    .ai-panel-header .ai-logo {
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.05em;
-        opacity: 0.8;
-    }
-    
-    .ai-panel-body {
-        margin-bottom: 8px;
-    }
-    
-    .ai-panel-footer {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding-top: 8px;
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        font-size: 11px;
-        opacity: 0.7;
-    }
-    /* ===== ESTIMATION BADGE ===== */
-    
-    .estimation-row {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        margin-top: 4px;
-    }
-    
-    .estimation-badge {
-        background: #1e1e1e;
-        border: 1px solid #2a2a2a;
-        border-radius: 8px;
-        padding: 10px 14px;
-        font-size: 12px;
-        color: #888;
-        flex: 1;
-    }
-    
-    .estimation-badge .badge-title {
-        font-size: 10px;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #555;
-        margin-bottom: 4px;
-    }
-    
-    .estimation-badge .badge-value {
-        font-size: 18px;
-        font-weight: 700;
-        color: #00d4d4;
-        margin-bottom: 2px;
-    }
-    
-    .estimation-badge .badge-diff {
-        font-size: 11px;
-        font-weight: 600;
-        margin-bottom: 3px;
-        transition: color 0.3s;
-    }
-    
-    .estimation-badge .badge-source {
-        font-size: 10px;
-        color: #444;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-    /* ===== STICKY BOTTOM BAR ===== */
-    
-    .bottom-bar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: #111;
-        border-top: 1px solid #222;
-        padding: 14px 32px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        z-index: 99;
-    }
-    
-    .btn-back {
-        background: none;
-        border: none;
-        color: #aaa;
-        font-size: 14px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: color 0.2s;
-    }
-    
-    .btn-back:hover {
-        color: #fff;
-    }
-    
-    .bottom-actions {
-        display: flex;
-        gap: 12px;
-    }
-    
-    .btn-draft {
-        background: transparent;
-        border: 1.5px solid #00d4d4;
-        border-radius: 28px;
-        color: #00d4d4;
-        padding: 10px 24px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-    
-    .btn-draft:hover {
-        background: rgba(0, 212, 212, 0.08);
-    }
-    
-    .btn-submit {
-        background: linear-gradient(135deg, #ff3c7e, #c2185b);
-        border: none;
-        border-radius: 28px;
-        color: #fff;
-        padding: 10px 28px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 20px rgba(255, 60, 126, 0.35);
-        transition: opacity 0.2s, transform 0.1s;
-    }
-    
-    .btn-submit:hover {
-        opacity: 0.92;
-        transform: translateY(-1px);
-    }
-    /* ===== SECTION VISIBILITY — stepper ===== */
-    
-    .section {
-        display: none;
-    }
-    
-    .section.visible {
-        display: block;
-    }
-    
-    .sidebar-section {
-        display: none;
-    }
-    
-    .sidebar-section.visible {
-        display: block;
-    }
-    /* ===== PIECE BUTTONS ===== */
-    
+
+    /* Pieces Selector */
     .pieces-group {
         display: flex;
-        gap: 8px;
+        gap: 0.5rem;
     }
     
     .piece-btn {
-        width: 48px;
+        flex: 1;
         height: 40px;
-        background: #111;
-        border: 1px solid #2a2a2a;
-        border-radius: 8px;
-        color: #888;
-        font-size: 14px;
-        font-weight: 500;
+        background: var(--bg-surface);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-md);
+        color: var(--text-secondary);
+        font-family: 'Syne', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all var(--dur) var(--ease);
         display: flex;
         align-items: center;
         justify-content: center;
     }
     
     .piece-btn.active {
-        background: #0d2a2a;
-        border-color: #00d4d4;
-        color: #00d4d4;
+        background: rgba(0, 212, 212, 0.1);
+        border-color: var(--cyan);
+        color: var(--cyan);
     }
     
     .piece-btn:hover:not(.active) {
-        border-color: #444;
-        color: #ccc;
-    }
-    /* ===== UPLOAD ZONE ===== */
-    
-    .upload-badge {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 12px;
-        color: #00d4d4;
+        border-color: rgba(255,255,255,0.15);
+        color: var(--text-primary);
     }
     
-    .upload-badge::before {
-        content: '●';
-        font-size: 8px;
-    }
-    
+    /* Upload Multimédia */
     .upload-zone {
-        border: 1.5px dashed #333;
-        border-radius: 12px;
-        padding: 40px 20px;
+        border: 1.5px dashed var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2.5rem 1.5rem;
         text-align: center;
         cursor: pointer;
-        transition: border-color 0.2s, background 0.2s;
-        background: #111;
-        margin-bottom: 12px;
+        transition: all var(--dur) var(--ease);
+        background: var(--bg-surface);
+        margin-bottom: 1.25rem;
     }
     
     .upload-zone:hover {
-        border-color: #00d4d4;
-        background: #0d1f1f;
+        border-color: var(--cyan);
+        background: rgba(0, 212, 212, 0.03);
     }
     
     .upload-icon {
-        font-size: 28px;
-        color: #00d4d4;
-        margin-bottom: 10px;
+        font-size: 2.5rem;
+        color: var(--cyan);
+        margin-bottom: 0.75rem;
     }
     
     .upload-zone p {
-        color: #bbb;
-        font-size: 14px;
-        margin-bottom: 4px;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
     }
     
     .upload-zone p strong {
-        color: #fff;
+        color: var(--text-primary);
     }
     
     .upload-zone small {
-        color: #555;
-        font-size: 12px;
-    }
-    
-    .btn-select-files {
-        background: transparent;
-        border: 1.5px solid #00d4d4;
-        border-radius: 24px;
-        color: #00d4d4;
-        padding: 9px 24px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        margin-top: 14px;
-        transition: background 0.2s;
-    }
-    
-    .btn-select-files:hover {
-        background: rgba(0, 212, 212, 0.08);
+        color: var(--text-muted);
+        font-size: 0.75rem;
     }
     
     .photo-thumbs {
         display: flex;
-        gap: 8px;
-        margin-top: 14px;
-        padding-top: 14px;
-        border-top: 1px solid #1e1e1e;
+        gap: 0.5rem;
+        margin-top: 1.25rem;
+        padding-top: 1.25rem;
+        border-top: 1px solid var(--border);
+        flex-wrap: wrap;
     }
     
     .thumb {
-        width: 70px;
-        height: 55px;
-        border-radius: 8px;
+        width: 75px;
+        height: 60px;
+        border-radius: var(--radius-sm);
         overflow: hidden;
-        background: #1a1a1a;
-        border: 1px solid #2a2a2a;
+        background: var(--bg-surface);
+        border: 1.5px solid var(--border);
+        position: relative;
     }
     
     .thumb img {
@@ -691,145 +271,23 @@
     }
     
     .thumb.active {
-        border: 2px solid #00d4d4;
+        border-color: var(--cyan);
     }
     
-    .thumb.empty {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #333;
-        font-size: 18px;
-    }
-    /* ===== SIDEBAR ===== */
-    
-    .sidebar {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-    }
-    
-    .sidebar-card {
-        background: #161616;
-        border: 1px solid #252525;
-        border-radius: 14px;
-        padding: 18px;
-    }
-    
-    .sidebar-title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        color: #fff;
-        margin-bottom: 16px;
-    }
-    
-    .info-icon {
-        width: 22px;
-        height: 22px;
-        background: #1e2a2a;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #00d4d4;
-        font-size: 11px;
-        font-weight: 700;
-    }
-    
-    .tip {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 14px;
-    }
-    
-    .tip:last-of-type {
-        margin-bottom: 0;
-    }
-    
-    .tip-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        margin-top: 4px;
-        flex-shrink: 0;
-    }
-    
-    .tip-dot.cyan {
-        background: #00d4d4;
-    }
-    
-    .tip-dot.green {
-        background: #00cc88;
-    }
-    
-    .tip-content strong {
-        display: block;
-        color: #e0e0e0;
-        font-size: 13px;
-        margin-bottom: 3px;
-    }
-    
-    .tip-content p {
-        color: #777;
-        font-size: 12px;
-        line-height: 1.5;
-    }
-    /* Quality bar */
-    
-    .quality-label {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-    }
-    
-    .quality-label span:first-child {
-        color: #aaa;
-        font-size: 13px;
-    }
-    
-    .quality-pct {
-        color: #00d4d4;
-        font-weight: 700;
-        font-size: 14px;
-    }
-    
-    .quality-bar-track {
-        height: 6px;
-        background: #222;
-        border-radius: 99px;
-        overflow: hidden;
-        margin-bottom: 8px;
-    }
-    
-    .quality-bar-fill {
-        height: 100%;
-        width: 75%;
-        background: linear-gradient(90deg, #00d4d4, #00a0a0);
-        border-radius: 99px;
-    }
-    
-    .quality-hint {
-        font-size: 11px;
-        color: #555;
-    }
-    /* ===== PRICE CARD ===== */
-    
+    /* Positionnement du prix */
     .price-label-row {
         display: flex;
         flex-direction: column;
         gap: 4px;
-        margin-bottom: 16px;
+        margin-bottom: 1rem;
     }
     
     .price-label-row .lbl {
-        font-size: 11px;
+        font-size: 0.75rem;
+        font-weight: 600;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        color: #777;
+        color: var(--text-muted);
     }
     
     .price-value-row {
@@ -838,272 +296,531 @@
         gap: 8px;
     }
     
-    .price-value {
-        font-size: 22px;
-        font-weight: 700;
-        color: #00d4d4;
+    .price-display-val {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: var(--cyan);
+        font-family: 'Syne', sans-serif;
     }
     
     .price-currency {
-        font-size: 14px;
-        color: #555;
+        font-size: 1rem;
+        color: var(--text-muted);
+        font-weight: 700;
+    }
+    
+    .price-zone-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+    
+    .price-zone-row {
+        display: flex;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        border: 1px solid var(--border);
+        margin-bottom: 1.25rem;
+    }
+    
+    .zone-link {
+        flex: 1;
+        padding: 0.75rem 0.5rem;
+        background: var(--bg-surface);
+        border-right: 1px solid var(--border);
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: all var(--dur) var(--ease);
+        text-align: center;
+        font-family: 'Syne', sans-serif;
+        line-height: 1.3;
+    }
+    
+    .zone-link:last-child {
+        border-right: none;
+    }
+    
+    .zone-link:hover {
+        background: rgba(255,255,255,0.03);
+        color: var(--text-secondary);
+    }
+    
+    .zone-link .zone-icon {
+        display: block;
+        font-size: 1.25rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .zone-link .zone-sub {
+        display: block;
+        font-size: 0.65rem;
+        font-weight: 400;
+        opacity: 0.6;
+        margin-top: 2px;
+        text-transform: none;
+        letter-spacing: 0;
+    }
+    
+    .zone-link.zone-under.active {
+        background: rgba(34, 197, 94, 0.1);
+        border-color: var(--success);
+        color: var(--success);
+        box-shadow: inset 0 -2.5px 0 var(--success);
+    }
+    
+    .zone-link.zone-market.active {
+        background: rgba(0, 212, 212, 0.1);
+        border-color: var(--cyan);
+        color: var(--cyan);
+        box-shadow: inset 0 -2.5px 0 var(--cyan);
+    }
+    
+    .zone-link.zone-over.active {
+        background: rgba(245, 158, 11, 0.1);
+        border-color: var(--warning);
+        color: var(--warning);
+        box-shadow: inset 0 -2.5px 0 var(--warning);
+    }
+    
+    /* AI Feedback Panels */
+    .ai-panel {
+        border-radius: var(--radius-md);
+        padding: 1rem;
+        font-size: 0.85rem;
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+        display: none;
+        transition: all 0.3s;
+    }
+    
+    .ai-panel.visible {
+        display: block;
+        animation: fadeIn 0.3s var(--ease);
+    }
+    
+    .ai-panel.green {
+        background: rgba(34, 197, 94, 0.08);
+        border: 1px solid var(--success);
+        color: #a7f3d0;
+    }
+    
+    .ai-panel.cyan {
+        background: rgba(0, 212, 212, 0.08);
+        border: 1px solid var(--cyan);
+        color: #c7d2fe;
+    }
+    
+    .ai-panel.orange {
+        background: rgba(245, 158, 11, 0.08);
+        border: 1px solid var(--warning);
+        color: #fef3c7;
+    }
+    
+    .ai-panel-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        font-family: 'Syne', sans-serif;
+    }
+    
+    .ai-panel-header .ai-logo {
+        font-size: 0.72rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        background: var(--pink);
+        color: #fff;
+        padding: 0.15rem 0.4rem;
+        border-radius: 4px;
+    }
+    
+    .ai-panel-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 0.6rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 0.75rem;
+        opacity: 0.7;
+        margin-top: 0.5rem;
+    }
+    
+    /* Estimation badge */
+    .estimation-badge {
+        background: var(--bg-surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        padding: 0.75rem 1rem;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        width: 100%;
+    }
+    
+    .estimation-badge .badge-title {
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+    }
+    
+    .estimation-badge .badge-value {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--cyan);
+        margin-bottom: 2px;
+        font-family: 'Syne', sans-serif;
+    }
+    
+    .estimation-badge .badge-diff {
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    /* Visibilité & Options */
+    .option-card {
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.25rem;
+        cursor: pointer;
+        transition: all var(--dur) var(--ease);
+        background: var(--bg-surface);
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .option-card:hover {
+        border-color: rgba(255,255,255,0.15);
+    }
+    .option-card.active {
+        border-color: var(--pink);
+        background: rgba(233, 30, 140, 0.03);
+    }
+    .option-card__radio {
+        margin-top: 0.3rem;
+        accent-color: var(--pink);
+    }
+    .option-card__content h4 {
+        font-size: 0.95rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+    .option-card__content p {
+        font-size: 0.8rem;
+        color: var(--text-secondary);
+        line-height: 1.5;
+    }
+    .option-card__content .price {
+        font-family: 'Syne', sans-serif;
+        font-weight: 800;
+        color: var(--pink);
+        margin-top: 0.5rem;
+        font-size: 0.9rem;
+    }
+
+    /* Validation / Recap */
+    .recap-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.85rem;
+    }
+    .recap-item:last-child {
+        border-bottom: none;
+    }
+    .recap-item span:first-child {
+        color: var(--text-muted);
+    }
+    .recap-item span:last-child {
+        color: var(--text-primary);
         font-weight: 600;
     }
     
-    .price-slider-labels {
-        display: flex;
-        justify-content: space-between;
-        font-size: 11px;
-        color: #555;
-        margin-bottom: 6px;
-        margin-top: 8px;
-    }
-    
-    .slider-track {
-        height: 8px;
-        background: linear-gradient(90deg, #333 0%, #00d4d4 45%, #f97316 70%, #333 100%);
-        border-radius: 99px;
-        position: relative;
-        margin-bottom: 12px;
-    }
-    
-    .slider-thumb {
-        width: 14px;
-        height: 14px;
-        background: #f97316;
-        border-radius: 50%;
-        position: absolute;
-        top: 50%;
-        left: 67%;
-        transform: translate(-50%, -50%);
-        box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.3);
-    }
-    
-    .estimation-row {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px;
-        margin-top: 4px;
-    }
-    
-    .estimation-badge {
-        background: #1e1e1e;
-        border: 1px solid #2a2a2a;
-        border-radius: 8px;
-        padding: 8px 12px;
-        font-size: 12px;
-        color: #888;
-        min-width: 110px;
-    }
-    
-    .estimation-badge strong {
-        display: block;
-        color: #bbb;
-        font-size: 14px;
-    }
-    
-    .estimation-badge small {
-        font-size: 10px;
-        color: #555;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    
-    .price-warning {
-        background: #1e1400;
-        border: 1px solid #5a3e00;
-        border-radius: 8px;
-        padding: 10px 14px;
-        display: flex;
-        align-items: flex-start;
-        gap: 8px;
-        font-size: 12px;
-        color: #d4a017;
-        flex: 1;
-        line-height: 1.5;
-    }
-    
-    .warn-icon {
-        font-size: 14px;
-        flex-shrink: 0;
-        margin-top: 1px;
-    }
-    /* ===== STICKY BOTTOM BAR ===== */
-    
+    /* Sticky Bottom Bar */
     .bottom-bar {
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        background: #111;
-        border-top: 1px solid #222;
-        padding: 14px 32px;
+        background: rgba(19, 22, 29, 0.95);
+        backdrop-filter: blur(12px);
+        border-top: 1px solid var(--border);
+        padding: 1rem 1.5rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
         z-index: 99;
     }
     
-    .btn-back {
-        background: none;
-        border: none;
-        color: #aaa;
-        font-size: 14px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: color 0.2s;
-    }
-    
-    .btn-back:hover {
-        color: #fff;
-    }
-    
     .bottom-actions {
         display: flex;
-        gap: 12px;
-    }
-    
-    .btn-draft {
-        background: transparent;
-        border: 1.5px solid #00d4d4;
-        border-radius: 28px;
-        color: #00d4d4;
-        padding: 10px 24px;
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: background 0.2s;
-    }
-    
-    .btn-draft:hover {
-        background: rgba(0, 212, 212, 0.08);
-    }
-    
-    .btn-submit {
-        background: linear-gradient(135deg, #ff3c7e, #c2185b);
-        border: none;
-        border-radius: 28px;
-        color: #fff;
-        padding: 10px 28px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        display: flex;
+        gap: 0.75rem;
         align-items: center;
-        gap: 8px;
-        box-shadow: 0 4px 20px rgba(255, 60, 126, 0.35);
-        transition: opacity 0.2s, transform 0.1s;
     }
-    
-    .btn-submit:hover {
-        opacity: 0.92;
-        transform: translateY(-1px);
-    }
-    /* ===== SECTION VISIBILITY — stepper ===== */
-    
-    .section {
-        display: none;
-    }
-    
-    .section.visible {
-        display: block;
-    }
-    
+
     .sidebar-section {
         display: none;
     }
-    
     .sidebar-section.visible {
         display: block;
     }
+
+    /* Quality bar */
+    .quality-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    .quality-label span:first-child {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+    }
+    .quality-pct {
+        color: var(--cyan);
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+    .quality-bar-track {
+        height: 6px;
+        background: rgba(255,255,255,0.05);
+        border-radius: var(--radius-pill);
+        overflow: hidden;
+        margin-bottom: 8px;
+    }
+    .quality-bar-fill {
+        height: 100%;
+        width: 30%;
+        background: linear-gradient(90deg, var(--cyan), var(--cyan-light));
+        border-radius: var(--radius-pill);
+        transition: width var(--dur) var(--ease);
+    }
+    .quality-hint {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+    }
+
+    .tip {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 1rem;
+    }
+    .tip:last-of-type {
+        margin-bottom: 0;
+    }
+    .tip-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        margin-top: 6px;
+        flex-shrink: 0;
+    }
+    .tip-dot.cyan { background: var(--cyan); }
+    .tip-dot.green { background: var(--success); }
+    .tip-content strong {
+        display: block;
+        color: var(--text-primary);
+        font-size: 0.85rem;
+        margin-bottom: 2px;
+    }
+    .tip-content p {
+        color: var(--text-secondary);
+        font-size: 0.78rem;
+        line-height: 1.4;
+    }
 </style>
+{% endblock %}
 
-<!-- NAVBAR -->
-<nav class="navbar">
-    <a href="{{ url_for('index') }}" class="navbar-brand">DzairLuxury</a>
-    <ul class="navbar-links">
-        <li><a href="{{ url_for('index') }}">Accueil</a></li>
-        <li><a href="#">Rechercher</a></li>
-        <li><a href="#">Estimer</a></li>
-        <li><a href="{{ url_for('annonces.publier') }}" class="active">Publier</a></li>
-    </ul>
-    <div class="navbar-icons">
-        <span class="navbar-bell">🔔</span>
-        <div class="navbar-avatar">
-            {% if session.nom %}{{ session.nom[0]|upper }}{% else %}?{% endif %}
-        </div>
-    </div>
-</nav>
-
+{% block content %}
 <div class="page-wrapper">
 
-    <!-- PAGE HEADER -->
+    <!-- En-tête de page -->
     <div class="page-header">
-        <h1>Publier une annonce</h1>
-        <p>Vendez votre bien d'exception en quelques étapes guidées.</p>
+        <h1>Publier une annonce d'exception</h1>
+        <p>Vendez ou louez votre bien immobilier prestigieux en quelques étapes guidées.</p>
     </div>
 
-    <!-- =====================================================================
-         STEPPER — chaque bouton appelle goStep('clé')
-         ===================================================================== -->
+    <!-- Stepper de progression -->
     <div class="stepper" role="tablist">
-        <button type="button" class="step active" role="tab" onclick="goStep('general')">Général</button>
-        <button type="button" class="step" role="tab" onclick="goStep('infos')">Infos bien</button>
-        <button type="button" class="step" role="tab" onclick="goStep('photos')">Photos</button>
-        <button type="button" class="step" role="tab" onclick="goStep('prix')">Prix</button>
-        <button type="button" class="step" role="tab" onclick="goStep('visibilite')">Visibilité</button>
-        <button type="button" class="step" role="tab" onclick="goStep('validation')">Validation</button>
+        <button type="button" class="step active" id="btn-step-general" onclick="goStep('general')">1. Général</button>
+        <button type="button" class="step" id="btn-step-infos" onclick="goStep('infos')">2. Infos bien</button>
+        <button type="button" class="step" id="btn-step-photos" onclick="goStep('photos')">3. Photos</button>
+        <button type="button" class="step" id="btn-step-prix" onclick="goStep('prix')">4. Prix</button>
+        <button type="button" class="step" id="btn-step-visibilite" onclick="goStep('visibilite')">5. Visibilité</button>
+        <button type="button" class="step" id="btn-step-validation" onclick="goStep('validation')">6. Validation</button>
     </div>
 
-    <!-- Formulaire — champs nommés selon contrat §8 : titre, description, prix,
-         surface, adresse, type, photos -->
-    <form method="POST" enctype="multipart/form-data" id="mainForm">
+    <!-- Boîte d'affichage des messages d'erreur flash (spécifique à la publication) -->
+    {% with messages = get_flashed_messages(category_filter=["danger", "error"]) %}
+        {% if messages %}
+            <div class="alert alert--danger" style="margin-bottom: 1.5rem;">
+                <span class="alert__icon">🔴</span>
+                <div class="alert__text" style="flex:1;">
+                    <strong>Veuillez corriger les erreurs de saisie suivantes :</strong>
+                    <ul style="margin-top: 0.4rem; padding-left: 1.2rem; font-size: 0.85rem; list-style-type: disc;">
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Formulaire principal d'envoi -->
+    <form method="POST" enctype="multipart/form-data" id="mainForm" class="form">
 
         <div class="main-grid">
 
-            <!-- ============================================================
-                 COLONNE GAUCHE
-                 ============================================================ -->
+            <!-- COLONNE GAUCHE (ÉTAPES DE SAISIE) -->
             <div class="left-col">
 
-                <!-- ── SECTION : Informations détaillées (infos bien) ─────── -->
-                <div class="section visible" id="sec-infos">
+                <!-- 1. SECTION GÉNÉRAL (Nouveau) -->
+                <div class="section visible" id="sec-general">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-title-icon">📝</div>
+                                Informations de base
+                            </div>
+                        </div>
+
+                        <!-- Titre de l'annonce -->
+                        <div class="form__group" style="margin-bottom: 1.25rem;">
+                            <label class="form__label">Titre de l'annonce *</label>
+                            <input type="text" name="titre" class="form__input" value="{{ titre or '' }}" required placeholder="Ex: Splendide Villa F6 Contemporaine avec Piscine à Hydra" oninput="updateProgress()">
+                        </div>
+
+                        <!-- Description du bien -->
+                        <div class="form__group" style="margin-bottom: 1.25rem;">
+                            <label class="form__label">Description complète *</label>
+                            <textarea name="description" class="form__textarea" required placeholder="Décrivez en détail les caractéristiques du bien, les finitions, la sécurité, l'emplacement, les commodités à proximité..." oninput="updateProgress()">{{ description or '' }}</textarea>
+                        </div>
+
+                        <!-- Wilaya & Adresse complète -->
+                        <div class="form-row">
+                            <div class="form__group">
+                                <label class="form__label">Wilaya *</label>
+                                <div class="select-wrapper">
+                                    <select name="wilaya" class="form__select" required onchange="updateProgress()">
+                                        <option value="" disabled selected>Sélectionnez la wilaya...</option>
+                                        <option value="Adrar" {% if wilaya == 'Adrar' %}selected{% endif %}>01 - Adrar</option>
+                                        <option value="Chlef" {% if wilaya == 'Chlef' %}selected{% endif %}>02 - Chlef</option>
+                                        <option value="Laghouat" {% if wilaya == 'Laghouat' %}selected{% endif %}>03 - Laghouat</option>
+                                        <option value="Oum El Bouaghi" {% if wilaya == 'Oum El Bouaghi' %}selected{% endif %}>04 - Oum El Bouaghi</option>
+                                        <option value="Batna" {% if wilaya == 'Batna' %}selected{% endif %}>05 - Batna</option>
+                                        <option value="Béjaïa" {% if wilaya == 'Béjaïa' %}selected{% endif %}>06 - Béjaïa</option>
+                                        <option value="Biskra" {% if wilaya == 'Biskra' %}selected{% endif %}>07 - Biskra</option>
+                                        <option value="Béchar" {% if wilaya == 'Béchar' %}selected{% endif %}>08 - Béchar</option>
+                                        <option value="Blida" {% if wilaya == 'Blida' %}selected{% endif %}>09 - Blida</option>
+                                        <option value="Bouira" {% if wilaya == 'Bouira' %}selected{% endif %}>10 - Bouira</option>
+                                        <option value="Tamanrasset" {% if wilaya == 'Tamanrasset' %}selected{% endif %}>11 - Tamanrasset</option>
+                                        <option value="Tébessa" {% if wilaya == 'Tébessa' %}selected{% endif %}>12 - Tébessa</option>
+                                        <option value="Tlemcen" {% if wilaya == 'Tlemcen' %}selected{% endif %}>13 - Tlemcen</option>
+                                        <option value="Tiaret" {% if wilaya == 'Tiaret' %}selected{% endif %}>14 - Tiaret</option>
+                                        <option value="Tizi Ouzou" {% if wilaya == 'Tizi Ouzou' %}selected{% endif %}>15 - Tizi Ouzou</option>
+                                        <option value="Alger" {% if wilaya == 'Alger' %}selected{% endif %}>16 - Alger</option>
+                                        <option value="Djelfa" {% if wilaya == 'Djelfa' %}selected{% endif %}>17 - Djelfa</option>
+                                        <option value="Jijel" {% if wilaya == 'Jijel' %}selected{% endif %}>18 - Jijel</option>
+                                        <option value="Sétif" {% if wilaya == 'Sétif' %}selected{% endif %}>19 - Sétif</option>
+                                        <option value="Saïda" {% if wilaya == 'Saïda' %}selected{% endif %}>20 - Saïda</option>
+                                        <option value="Skikda" {% if wilaya == 'Skikda' %}selected{% endif %}>21 - Skikda</option>
+                                        <option value="Sidi Bel Abbès" {% if wilaya == 'Sidi Bel Abbès' %}selected{% endif %}>22 - Sidi Bel Abbès</option>
+                                        <option value="Annaba" {% if wilaya == 'Annaba' %}selected{% endif %}>23 - Annaba</option>
+                                        <option value="Guelma" {% if wilaya == 'Guelma' %}selected{% endif %}>24 - Guelma</option>
+                                        <option value="Constantine" {% if wilaya == 'Constantine' %}selected{% endif %}>25 - Constantine</option>
+                                        <option value="Médéa" {% if wilaya == 'Médéa' %}selected{% endif %}>26 - Médéa</option>
+                                        <option value="Mostaganem" {% if wilaya == 'Mostaganem' %}selected{% endif %}>27 - Mostaganem</option>
+                                        <option value="M'Sila" {% if wilaya == 'M\'Sila' %}selected{% endif %}>28 - M'Sila</option>
+                                        <option value="Mascara" {% if wilaya == 'Mascara' %}selected{% endif %}>29 - Mascara</option>
+                                        <option value="Ouargla" {% if wilaya == 'Ouargla' %}selected{% endif %}>30 - Ouargla</option>
+                                        <option value="Oran" {% if wilaya == 'Oran' %}selected{% endif %}>31 - Oran</option>
+                                        <option value="El Bayadh" {% if wilaya == 'El Bayadh' %}selected{% endif %}>32 - El Bayadh</option>
+                                        <option value="Illizi" {% if wilaya == 'Illizi' %}selected{% endif %}>33 - Illizi</option>
+                                        <option value="Bordj Bou Arréridj" {% if wilaya == 'Bordj Bou Arréridj' %}selected{% endif %}>34 - Bordj Bou Arréridj</option>
+                                        <option value="Boumerdès" {% if wilaya == 'Boumerdès' %}selected{% endif %}>35 - Boumerdès</option>
+                                        <option value="El Tarf" {% if wilaya == 'El Tarf' %}selected{% endif %}>36 - El Tarf</option>
+                                        <option value="Tindouf" {% if wilaya == 'Tindouf' %}selected{% endif %}>37 - Tindouf</option>
+                                        <option value="Tissemsilt" {% if wilaya == 'Tissemsilt' %}selected{% endif %}>38 - Tissemsilt</option>
+                                        <option value="El Oued" {% if wilaya == 'El Oued' %}selected{% endif %}>39 - El Oued</option>
+                                        <option value="Khenchela" {% if wilaya == 'Khenchela' %}selected{% endif %}>40 - Khenchela</option>
+                                        <option value="Souk Ahras" {% if wilaya == 'Souk Ahras' %}selected{% endif %}>41 - Souk Ahras</option>
+                                        <option value="Tipaza" {% if wilaya == 'Tipaza' %}selected{% endif %}>42 - Tipaza</option>
+                                        <option value="Mila" {% if wilaya == 'Mila' %}selected{% endif %}>43 - Mila</option>
+                                        <option value="Aïn Defla" {% if wilaya == 'Aïn Defla' %}selected{% endif %}>44 - Aïn Defla</option>
+                                        <option value="Naâma" {% if wilaya == 'Naâma' %}selected{% endif %}>45 - Naâma</option>
+                                        <option value="Aïn Témouchent" {% if wilaya == 'Aïn Témouchent' %}selected{% endif %}>46 - Aïn Témouchent</option>
+                                        <option value="Ghardaïa" {% if wilaya == 'Ghardaïa' %}selected{% endif %}>47 - Ghardaïa</option>
+                                        <option value="Relizane" {% if wilaya == 'Relizane' %}selected{% endif %}>48 - Relizane</option>
+                                        <option value="El M'Ghair" {% if wilaya == 'El M\'Ghair' %}selected{% endif %}>49 - El M'Ghair</option>
+                                        <option value="El Meniaa" {% if wilaya == 'El Meniaa' %}selected{% endif %}>50 - El Meniaa</option>
+                                        <option value="Ouled Djellal" {% if wilaya == 'Ouled Djellal' %}selected{% endif %}>51 - Ouled Djellal</option>
+                                        <option value="Bordj Badji Mokhtar" {% if wilaya == 'Bordj Badji Mokhtar' %}selected{% endif %}>52 - Bordj Badji Mokhtar</option>
+                                        <option value="Béni Abbès" {% if wilaya == 'Béni Abbès' %}selected{% endif %}>53 - Béni Abbès</option>
+                                        <option value="Timimoun" {% if wilaya == 'Timimoun' %}selected{% endif %}>54 - Timimoun</option>
+                                        <option value="Touggourt" {% if wilaya == 'Touggourt' %}selected{% endif %}>55 - Touggourt</option>
+                                        <option value="Djanet" {% if wilaya == 'Djanet' %}selected{% endif %}>56 - Djanet</option>
+                                        <option value="In Salah" {% if wilaya == 'In Salah' %}selected{% endif %}>57 - In Salah</option>
+                                        <option value="In Guezzam" {% if wilaya == 'In Guezzam' %}selected{% endif %}>58 - In Guezzam</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form__group">
+                                <label class="form__label">Adresse exacte *</label>
+                                <input type="text" name="adresse" class="form__input" value="{{ adresse or '' }}" required placeholder="Ex: Résidence El Bahdja, El Biar" oninput="updateProgress()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. SECTION INFOS BIEN -->
+                <div class="section" id="sec-infos">
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">
                                 <div class="card-title-icon">🏢</div>
-                                Informations détaillées
+                                Caractéristiques du bien
                             </div>
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Type de propriété</label>
+                            <div class="form__group">
+                                <label class="form__label">Type de propriété *</label>
                                 <div class="select-wrapper">
-                                    <!-- name="type" — contrat §8 ; valeurs §4 toujours MAJUSCULES -->
-                                    <select name="type" class="form-control" required>
+                                    <select name="type" class="form__select" required>
                                         <option value="APPARTEMENT" {% if type_bien == 'APPARTEMENT' %}selected{% endif %}>Appartement</option>
-                                        <option value="MAISON"      {% if type_bien == 'MAISON'      %}selected{% endif %}>Maison</option>
+                                        <option value="MAISON"      {% if type_bien == 'MAISON'      %}selected{% endif %}>Maison / Villa</option>
                                         <option value="TERRAIN"     {% if type_bien == 'TERRAIN'     %}selected{% endif %}>Terrain</option>
-                                        <option value="COMMERCIAL"  {% if type_bien == 'COMMERCIAL'  %}selected{% endif %}>Villa de luxe</option>
+                                        <option value="COMMERCIAL"  {% if type_bien == 'COMMERCIAL'  %}selected{% endif %}>Local Commercial</option>
                                     </select>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Surface habitable (m²)</label>
+                            <div class="form__group">
+                                <label class="form__label">Surface habitable (m²) *</label>
                                 <div class="input-suffix">
-                                    <!-- name="surface" — contrat §8 -->
-                                    <input type="number" name="surface" class="form-control" value="{{ surface or '' }}" placeholder="Ex: 250">
+                                    <input type="number" name="surface" class="form__input" value="{{ surface or '' }}" required placeholder="Ex: 250" min="1" oninput="updateProgress()">
                                     <span class="suffix-label">m²</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group">
-                                <label class="form-label">Nombre de pièces</label>
+                            <div class="form__group">
+                                <label class="form__label">Nombre de pièces</label>
                                 <div class="pieces-group">
                                     <button type="button" class="piece-btn active" onclick="selectPiece(this, 3)">3</button>
                                     <button type="button" class="piece-btn" onclick="selectPiece(this, 4)">4</button>
@@ -1112,181 +829,251 @@
                                 </div>
                                 <input type="hidden" name="pieces" id="piecesInput" value="3">
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">Année de construction</label>
-                                <input type="number" name="annee_construction" class="form-control" placeholder="YYYY" min="1900" max="2026">
+                            <div class="form__group">
+                                <label class="form__label">Année de construction</label>
+                                <input type="number" name="annee_construction" class="form__input" placeholder="Ex: 2020" min="1900" max="2026">
                             </div>
                         </div>
                     </div>
                 </div>
-                <!-- /sec-infos -->
 
-                <!-- ── SECTION : Galerie multimédia (photos) ──────────────── -->
-                <div class="section visible" id="sec-photos">
+                <!-- 3. SECTION PHOTOS -->
+                <div class="section" id="sec-photos">
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">
                                 <div class="card-title-icon">📷</div>
-                                Galerie multimédia
+                                Galerie Multimédia
                             </div>
-                            <div class="upload-badge">Recommandé : 10+ photos</div>
+                            <div class="quality-hint" style="color: var(--cyan); font-weight: 600;">Recommandé : 5+ photos</div>
                         </div>
 
                         <label for="fileInput">
                             <div class="upload-zone" id="uploadZone">
-                                <div class="upload-icon">☁</div>
+                                <div class="upload-icon">☁️</div>
                                 <p><strong>Glissez vos photos ici</strong></p>
-                                <p>Ou cliquez pour parcourir vos fichiers (Max 20MB par fichier)</p>
+                                <p style="font-size:0.8rem; margin-top:4px;">Ou cliquez pour parcourir (Max 20 Mo par image)</p>
+                                <small>Formats supportés : JPEG, PNG, WEBP</small>
                             </div>
                         </label>
-                        <!-- name="photos" — contrat §8 -->
-                        <input type="file" name="photos" id="fileInput" multiple accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none" onchange="handleFiles(this)">
+                        <input type="file" name="photos" id="fileInput" multiple accept="image/png,image/jpeg,image/jpg,image/webp" style="display:none" onchange="handleFiles(this); updateProgress();">
 
                         <div style="text-align:center; margin-top:-4px; margin-bottom:12px;">
-                            <button type="button" class="btn-select-files" onclick="document.getElementById('fileInput').click()">
-                                Sélectionner des fichiers
+                            <button type="button" class="btn btn--sm btn--secondary" onclick="document.getElementById('fileInput').click()">
+                                Sélectionner des photos
                             </button>
                         </div>
 
                         <div class="photo-thumbs" id="thumbsRow"></div>
                     </div>
                 </div>
-                <!-- /sec-photos -->
 
-                <!-- ── SECTION : Positionnement du prix ───────────────────── -->
-                <!-- ── SECTION : Positionnement du prix ───────────────────── -->
-                <!-- MODIFIÉ : les 3 labels sont maintenant des boutons cliquables
-                     qui communiquent entre eux et avec l'estimation DzairAI      -->
-                <div class="section visible" id="sec-prix">
+                <!-- 4. SECTION PRIX -->
+                <div class="section" id="sec-prix">
                     <div class="card">
                         <div class="card-header">
                             <div class="card-title">
-                                <div class="card-title-icon"></div>
-                                Positionnement du prix
+                                <div class="card-title-icon">💰</div>
+                                Prix & Positionnement
                             </div>
                         </div>
 
                         <div class="price-label-row">
-                            <span class="lbl">Votre prix de vente</span>
+                            <span class="lbl">Prix de vente souhaité</span>
                             <div class="price-value-row">
+                                <span class="price-display-val" id="priceDisplay">85 000 000</span>
                                 <span class="price-currency">DA</span>
                             </div>
                         </div>
 
-                        <!-- name="prix" — contrat §8 -->
-                        <input type="number" name="prix" class="form-control" id="prixInput" value="{{ prix or '85000000' }}" required placeholder="Prix de vente en DA" oninput="onPrixChange(this.value)" style="margin-bottom:16px;">
+                        <input type="number" name="prix" class="form__input" id="prixInput" value="{{ prix or '85000000' }}" required placeholder="Prix en DA" oninput="onPrixChange(this.value); updateProgress();" style="margin-bottom:1.5rem; font-size:1.1rem; font-weight:700;">
 
-                        <!-- ── LIENS DE ZONE (cliquables) ────────────────── -->
-                        <span class="price-zone-label">Positionnement par rapport au marché</span>
+                        <!-- Estimation / Positionnement marché -->
+                        <span class="price-zone-label">Positionnement estimé du prix</span>
                         <div class="price-zone-row">
                             <a href="#" class="zone-link zone-under" id="btnUnder" onclick="selectZone('under'); return false;">
-                                <span class="zone-icon"></span> Sous-évalué
+                                <span class="zone-icon">🟢</span> Sous-évalué
                                 <span class="zone-sub">Vente rapide</span>
                             </a>
                             <a href="#" class="zone-link zone-market" id="btnMarket" onclick="selectZone('market'); return false;">
-                                <span class="zone-icon"></span> Prix marché
-                                <span class="zone-sub">Équilibré</span>
+                                <span class="zone-icon">🔵</span> Prix marché
+                                <span class="zone-sub">Idéal</span>
                             </a>
                             <a href="#" class="zone-link zone-over" id="btnOver" onclick="selectZone('over'); return false;">
-                                <span class="zone-icon"></span> Sur-évalué
-                                <span class="zone-sub">Délai long</span>
+                                <span class="zone-icon">🟠</span> Sur-évalué
+                                <span class="zone-sub">Plus long</span>
                             </a>
                         </div>
 
-                        <!-- ── PANNEAU FEEDBACK DzairAI (nouveau) ─────────── -->
+                        <!-- Feedback Panels IA -->
                         <div class="ai-panel green" id="aiPanelUnder">
                             <div class="ai-panel-header">
-                                <span class="ai-logo">DzairAI</span> Bien sous-évalué
+                                <span class="ai-logo">DzairAI</span> Prix sous-évalué
                             </div>
                             <div class="ai-panel-body" id="aiBodyUnder"></div>
                             <div class="ai-panel-footer">
-                                <span>Estimation ± 5% · 142 biens similaires à Hydra</span>
+                                <span>Basé sur l'estimation de biens similaires</span>
                                 <span id="aiFooterUnder"></span>
                             </div>
                         </div>
 
                         <div class="ai-panel cyan" id="aiPanelMarket">
                             <div class="ai-panel-header">
-                                <span class="ai-logo">DzairAI</span> Prix dans la fourchette marché
+                                <span class="ai-logo">DzairAI</span> Prix conforme au marché
                             </div>
                             <div class="ai-panel-body" id="aiBodyMarket"></div>
                             <div class="ai-panel-footer">
-                                <span>Estimation ± 5% · 142 biens similaires à Hydra</span>
+                                <span>Écart minime par rapport à la moyenne locale</span>
                                 <span id="aiFooterMarket"></span>
                             </div>
                         </div>
 
                         <div class="ai-panel orange" id="aiPanelOver">
                             <div class="ai-panel-header">
-                                <span class="ai-logo">DzairAI</span> ⚠️ Prix au-dessus du marché
+                                <span class="ai-logo">DzairAI</span> Attention : Prix sur-évalué
                             </div>
                             <div class="ai-panel-body" id="aiBodyOver"></div>
                             <div class="ai-panel-footer">
+                                <span>Risque de baisse des demandes de contact</span>
                                 <span id="aiFooterOver"></span>
                             </div>
                         </div>
 
-                        <!-- ── BADGE ESTIMATION (toujours visible) ────────── -->
-                        <div class="estimation-row">
-                            <div class="estimation-badge">
-                                <div class="badge-title">Estimation DzairAI &nbsp;± 5%</div>
-                                <div class="badge-diff" id="badgeDiff">—</div>
-                                <div class="badge-source"></div>
+                        <div class="estimation-badge">
+                            <div class="badge-title">Estimation DzairAI &nbsp;± 5%</div>
+                            <div class="badge-value">78 500 000 DA</div>
+                            <div class="badge-diff" id="badgeDiff">—</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. SECTION VISIBILITÉ (Nouveau) -->
+                <div class="section" id="sec-visibilite">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-title-icon">✨</div>
+                                Options de visibilité
                             </div>
                         </div>
 
+                        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;">
+                            Choisissez comment vous souhaitez diffuser votre annonce sur notre réseau prestigieux.
+                        </p>
+
+                        <!-- Option Standard -->
+                        <div class="option-card active" id="opt-standard" onclick="selectOption('standard')">
+                            <input type="radio" name="visibilite_opt" value="standard" checked class="option-card__radio" id="radio-standard">
+                            <div class="option-card__content">
+                                <h4>Publication Standard</h4>
+                                <p>Votre bien est soumis à la modération et publié normalement sur la plateforme. Visible par tous les acquéreurs.</p>
+                                <div class="price">GRATUIT</div>
+                            </div>
+                        </div>
+
+                        <!-- Option Boostée / Premium -->
+                        <div class="option-card" id="opt-premium" onclick="selectOption('premium')">
+                            <input type="radio" name="visibilite_opt" value="premium" class="option-card__radio" id="radio-premium">
+                            <div class="option-card__content">
+                                <h4>Publication Premium Boostée 🚀</h4>
+                                <p>Positionnement prioritaire en tête des recherches, badge exclusif "Premium" et analyse d'audience hebdomadaire.</p>
+                                <div class="price">4 900 DA / mois</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <!-- /sec-prix -->
 
-                <!-- Champs cachés — noms contrat §8 : titre, description, adresse -->
-                <input type="hidden" name="titre" value="{{ titre or '' }}">
-                <input type="hidden" name="description" value="{{ description or '' }}">
-                <input type="hidden" name="adresse" value="{{ adresse or '' }}">
+                <!-- 6. SECTION VALIDATION (Nouveau) -->
+                <div class="section" id="sec-validation">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">
+                                <div class="card-title-icon">✅</div>
+                                Récapitulatif & Soumission
+                            </div>
+                        </div>
+
+                        <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.25rem;">
+                            Veuillez relire attentivement les informations ci-dessous avant d'envoyer votre annonce à la file de modération.
+                        </p>
+
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: var(--radius-md); padding: 1rem; display: flex; flex-direction: column; gap: 0.25rem; margin-bottom:1.25rem;">
+                            <div class="recap-item">
+                                <span>Titre :</span>
+                                <span id="recap-titre">—</span>
+                            </div>
+                            <div class="recap-item">
+                                <span>Type de bien :</span>
+                                <span id="recap-type">—</span>
+                            </div>
+                            <div class="recap-item">
+                                <span>Surface habitable :</span>
+                                <span id="recap-surface">—</span>
+                            </div>
+                            <div class="recap-item">
+                                <span>Adresse complète :</span>
+                                <span id="recap-adresse">—</span>
+                            </div>
+                            <div class="recap-item">
+                                <span>Prix demandé :</span>
+                                <span id="recap-prix" style="color:var(--pink);">—</span>
+                            </div>
+                            <div class="recap-item">
+                                <span>Photos sélectionnées :</span>
+                                <span id="recap-photos">—</span>
+                            </div>
+                            <div class="recap-item">
+                                <span>Option visibilité :</span>
+                                <span id="recap-visibilite">Standard</span>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 8px; align-items: flex-start; background: rgba(0, 212, 212, 0.05); border: 1px solid rgba(0, 212, 212, 0.2); padding: 0.85rem; border-radius: var(--radius-md); font-size: 0.8rem; line-height: 1.5; color: var(--text-primary);">
+                            <span>🛡️</span>
+                            <p>
+                                <strong>Engagement de conformité</strong> : En soumettant cette annonce, vous certifiez l'exactitude des informations. Toute annonce frauduleuse sera définitivement rejetée par l'administration.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
             </div>
             <!-- /left-col -->
 
-            <!-- ============================================================
-                 SIDEBAR DROITE
-                 ============================================================ -->
+            <!-- COLONNE DROITE (PROGRESSION & CONSEILS) -->
             <aside class="sidebar">
 
-                <!-- Conseils d'expert — visible : général + visibilité -->
-                <div class="sidebar-section visible" id="sec-sidebar-conseils">
-                    <div class="sidebar-card">
-                        <div class="sidebar-title">
-                            <div class="info-icon">i</div>
-                            Conseils d'expert
-                        </div>
-                        <div class="tip">
-                            <div class="tip-dot cyan"></div>
-                            <div class="tip-content">
-                                <strong>Photos de jour</strong>
-                                <p>Les annonces avec des photos prises en lumière naturelle reçoivent 3x plus de clics.</p>
-                            </div>
-                        </div>
-                        <div class="tip">
-                            <div class="tip-dot green"></div>
-                            <div class="tip-content">
-                                <strong>Précision de la surface</strong>
-                                <p>Une erreur de surface peut invalider la transaction chez le notaire.</p>
-                            </div>
-                        </div>
+                <!-- Qualité & Progression -->
+                <div class="sidebar-card">
+                    <div class="quality-label">
+                        <span>Complétude de l'étape</span>
+                        <span class="quality-pct" id="qualityPct">0%</span>
                     </div>
+                    <div class="quality-bar-track">
+                        <div class="quality-bar-fill" id="qualityBarFill" style="width: 0%;"></div>
+                    </div>
+                    <p class="quality-hint" id="qualityHint">Renseignez le titre pour démarrer.</p>
                 </div>
 
-                <!-- Qualité annonce — visible : général + visibilité -->
-                <div class="sidebar-section visible" id="sec-sidebar-qualite">
-                    <div class="sidebar-card">
-                        <div class="quality-label">
-                            <span>Qualité de l'annonce</span>
-                            <span class="quality-pct">75%</span>
+                <!-- Conseils d'expert -->
+                <div class="sidebar-card">
+                    <div class="sidebar-title">
+                        <div class="info-icon">i</div>
+                        Conseils d'expert
+                    </div>
+                    <div class="tip">
+                        <div class="tip-dot cyan"></div>
+                        <div class="tip-content">
+                            <strong>Lumière naturelle</strong>
+                            <p>Les photos prises en journée augmentent les visites de plus de 40%.</p>
                         </div>
-                        <div class="quality-bar-track">
-                            <div class="quality-bar-fill"></div>
+                    </div>
+                    <div class="tip">
+                        <div class="tip-dot green"></div>
+                        <div class="tip-content">
+                            <strong>Prix réaliste</strong>
+                            <p>Un prix aligné avec l'estimation DzairAI raccourcit le délai de vente de moitié.</p>
                         </div>
-                        <p class="quality-hint">Ajoutez une description détaillée pour atteindre 100%</p>
                     </div>
                 </div>
 
@@ -1298,112 +1085,174 @@
     </form>
 
 </div>
-<!-- /page-wrapper -->
 
-<!-- =====================================================================
-     BOTTOM BAR FIXE — visible : général + validation
-     ===================================================================== -->
+<!-- STICKY BOTTOM BAR DE NAVIGATION -->
 <div class="bottom-bar" id="bottomBar">
-    <button type="button" class="btn-back" onclick="history.back()">
-        ← &nbsp;Retour
+    <button type="button" class="btn btn--md btn--ghost" id="btnPrev" onclick="prevStep()">
+        ← Précédent
     </button>
     <div class="bottom-actions">
-        <button type="button" class="btn-draft" onclick="saveDraft()">
-            Sauvegarder brouillon
+        <button type="button" class="btn btn--md btn--secondary" onclick="saveDraft()">
+            Sauvegarder Brouillon
         </button>
-        <button type="button" class="btn-submit" onclick="submitForm()">
-            Soumettre à la modération &nbsp;➤
+        <button type="button" class="btn btn--md btn--primary" id="btnNext" onclick="nextStep()">
+            Suivant →
         </button>
     </div>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
 <script>
-    /* =============================================================================
-                                               STEPPER — tables de visibilité
-                                               =============================================================================
-                                               Contrat §5 (variables Jinja2) : titre, description, prix, surface, adresse, type_bien
-                                               Contrat §4 (valeurs type)     : APPARTEMENT / MAISON / TERRAIN / COMMERCIAL
-                                               Contrat §3 (valeurs statut)   : BROUILLON / EN_ATTENTE / PUBLIEE / REJETEE / ARCHIVEE
-                                               Contrat §8 (name des champs)  : titre, description, prix, surface, adresse, type, photos
-                                               ============================================================================= */
+    /* =========================================================================
+       DZ-Immobilier — Logique pas-à-pas de publication (publier.html)
+       ========================================================================= */
+    const steps = ['general', 'infos', 'photos', 'prix', 'visibilite', 'validation'];
+    let currentStepIdx = 0;
 
-    /* Sections colonne gauche à afficher pour chaque étape */
-    const leftMap = {
-        general: ['sec-infos', 'sec-photos', 'sec-prix'],
-        infos: ['sec-infos'],
-        photos: ['sec-photos'],
-        prix: ['sec-prix'],
-        visibilite: [],
-        validation: []
-    };
-
-    /* Sections sidebar à afficher pour chaque étape */
-    const sidebarMap = {
-        general: ['sec-sidebar-conseils', 'sec-sidebar-qualite'],
-        infos: [],
-        photos: [],
-        prix: [],
-        visibilite: ['sec-sidebar-conseils', 'sec-sidebar-qualite'],
-        validation: []
-    };
-
-    /* Bottom bar visible uniquement sur général et validation */
-    const bottomBarSteps = ['general', 'validation'];
-
-    const allLeft = ['sec-infos', 'sec-photos', 'sec-prix'];
-    const allSidebar = ['sec-sidebar-conseils', 'sec-sidebar-qualite'];
-    const stepKeys = ['general', 'infos', 'photos', 'prix', 'visibilite', 'validation'];
+    const AI_ESTIM = 78500000; // estimation DzairAI en DA
+    const MARGE_PCT = 0.05; 
+    let currentZone = null;
 
     function goStep(key) {
-        /* 1. Mettre à jour l'onglet actif */
-        document.querySelectorAll('.step').forEach((btn, i) => {
-            const isActive = stepKeys[i] === key;
-            btn.classList.toggle('active', isActive);
-            btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        const targetIdx = steps.indexOf(key);
+        if (targetIdx === -1) return;
+        
+        // Validation basique si on avance
+        if (targetIdx > currentStepIdx) {
+            const currentFormSection = document.getElementById('sec-' + steps[currentStepIdx]);
+            if (currentFormSection) {
+                const inputs = currentFormSection.querySelectorAll('input[required], textarea[required], select[required]');
+                let valid = true;
+                inputs.forEach(input => {
+                    if (!input.checkValidity()) {
+                        input.reportValidity();
+                        valid = false;
+                    }
+                });
+                if (!valid) return;
+            }
+        }
+
+        currentStepIdx = targetIdx;
+
+        // Mise à jour de l'affichage des sections
+        steps.forEach(stepKey => {
+            const sec = document.getElementById('sec-' + stepKey);
+            if (sec) {
+                sec.classList.toggle('visible', stepKey === key);
+            }
         });
 
-        /* 2. Sections colonne gauche */
-        allLeft.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.classList.toggle('visible', (leftMap[key] || []).includes(id));
+        // Mise à jour visuelle des boutons du stepper
+        steps.forEach((stepKey, idx) => {
+            const btn = document.getElementById('btn-step-' + stepKey);
+            if (btn) {
+                btn.classList.toggle('active', idx === currentStepIdx);
+            }
         });
 
-        /* 3. Sections sidebar */
-        allSidebar.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.classList.toggle('visible', (sidebarMap[key] || []).includes(id));
-        });
+        // Contrôle de la bottom bar
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
 
-        /* 4. Bottom bar */
-        document.getElementById('bottomBar').style.display =
-            bottomBarSteps.includes(key) ? 'flex' : 'none';
+        if (currentStepIdx === 0) {
+            btnPrev.textContent = '← Annuler';
+            btnPrev.onclick = () => { window.location.href = "{{ url_for('mes_annonces') }}"; };
+        } else {
+            btnPrev.textContent = '← Précédent';
+            btnPrev.onclick = prevStep;
+        }
+
+        if (currentStepIdx === steps.length - 1) {
+            btnNext.textContent = 'Soumettre ➤';
+            btnNext.onclick = submitForm;
+            updateRecap();
+        } else {
+            btnNext.textContent = 'Suivant →';
+            btnNext.onclick = nextStep;
+        }
+
+        updateProgress();
     }
 
-    /* Démarrage sur l'onglet Général */
-    goStep('general');
+    function nextStep() {
+        if (currentStepIdx < steps.length - 1) {
+            goStep(steps[currentStepIdx + 1]);
+        }
+    }
 
-    /* =============================================================================
-       FONCTIONS FORMULAIRE
-       ============================================================================= */
+    function prevStep() {
+        if (currentStepIdx > 0) {
+            goStep(steps[currentStepIdx - 1]);
+        }
+    }
 
-    /* Sélecteur de pièces */
+    // Gestion du sélecteur de pièces
     function selectPiece(btn, val) {
         document.querySelectorAll('.piece-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         document.getElementById('piecesInput').value = val;
     }
 
-    /* Affichage du prix formaté */
-    function updatePriceDisplay(val) {
-        const num = parseInt(val) || 0;
-        document.getElementById('priceDisplay').textContent = num.toLocaleString('fr-DZ');
+    // Gestion de l'option de visibilité
+    function selectOption(opt) {
+        document.getElementById('opt-standard').classList.toggle('active', opt === 'standard');
+        document.getElementById('opt-premium').classList.toggle('active', opt === 'premium');
+        
+        document.getElementById('radio-standard').checked = (opt === 'standard');
+        document.getElementById('radio-premium').checked = (opt === 'premium');
+        
+        document.getElementById('recap-visibilite').textContent = opt === 'standard' ? 'Standard (Gratuit)' : 'Premium Boostée (4 900 DA)';
     }
 
-    /* Miniatures de photos */
+    // Calcul de la complétude
+    function updateProgress() {
+        let pct = 0;
+        let hint = "";
+
+        if (currentStepIdx === 0) {
+            const titre = document.getElementsByName('titre')[0].value.trim();
+            const desc = document.getElementsByName('description')[0].value.trim();
+            const wilaya = document.getElementsByName('wilaya')[0].value;
+            const adr = document.getElementsByName('adresse')[0].value.trim();
+
+            let count = 0;
+            if (titre) count++;
+            if (desc) count++;
+            if (wilaya) count++;
+            if (adr) count++;
+
+            pct = Math.round((count / 4) * 100);
+            hint = count < 4 ? "Remplissez tous les champs obligatoires." : "Étape validée ! Cliquez sur Suivant.";
+        } else if (currentStepIdx === 1) {
+            const surface = document.getElementsByName('surface')[0].value;
+            pct = surface > 0 ? 100 : 50;
+            hint = surface > 0 ? "Caractéristiques prêtes." : "Saisissez la surface habitable.";
+        } else if (currentStepIdx === 2) {
+            const files = document.getElementById('fileInput').files.length;
+            pct = files > 0 ? 100 : 0;
+            hint = files > 0 ? `${files} photo(s) ajoutée(s).` : "Ajoutez au moins une photo.";
+        } else if (currentStepIdx === 3) {
+            const prix = parseInt(document.getElementById('prixInput').value) || 0;
+            pct = prix > 0 ? 100 : 0;
+            hint = prix > 0 ? "Prix configuré." : "Saisissez votre prix de vente.";
+        } else {
+            pct = 100;
+            hint = "Étape validée.";
+        }
+
+        document.getElementById('qualityPct').textContent = pct + "%";
+        document.getElementById('qualityBarFill').style.width = pct + "%";
+        document.getElementById('qualityHint').textContent = hint;
+    }
+
+    // Gestion des miniatures d'images
     function handleFiles(input) {
         const row = document.getElementById('thumbsRow');
         row.innerHTML = '';
-        Array.from(input.files).slice(0, 6).forEach((file, i) => {
+        Array.from(input.files).slice(0, 8).forEach((file, i) => {
             const reader = new FileReader();
             reader.onload = e => {
                 const div = document.createElement('div');
@@ -1417,102 +1266,88 @@
         });
     }
 
-    /* Glisser-déposer */
+    // Glisser-déposer photos
     const zone = document.getElementById('uploadZone');
-    zone.addEventListener('dragover', e => {
-        e.preventDefault();
-        zone.style.borderColor = '#00d4d4';
-    });
-    zone.addEventListener('dragleave', () => {
-        zone.style.borderColor = '#333';
-    });
-    zone.addEventListener('drop', e => {
-        e.preventDefault();
-        zone.style.borderColor = '#333';
-        const dt = new DataTransfer();
-        Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
-        document.getElementById('fileInput').files = dt.files;
-        handleFiles(document.getElementById('fileInput'));
-    });
-
-    /* Soumission — route contrat §7 : url_for('annonces.publier') */
-    function saveDraft() {
-        /* statut BROUILLON — contrat §3 */
-        document.getElementById('mainForm').action =
-            "{{ url_for('annonces.publier') }}?action=brouillon";
-        document.getElementById('mainForm').submit();
+    if (zone) {
+        zone.addEventListener('dragover', e => {
+            e.preventDefault();
+            zone.style.borderColor = 'var(--cyan)';
+        });
+        zone.addEventListener('dragleave', () => {
+            zone.style.borderColor = 'var(--border)';
+        });
+        zone.addEventListener('drop', e => {
+            e.preventDefault();
+            zone.style.borderColor = 'var(--border)';
+            const dt = new DataTransfer();
+            Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
+            document.getElementById('fileInput').files = dt.files;
+            handleFiles(document.getElementById('fileInput'));
+            updateProgress();
+        });
     }
 
-    function submitForm() {
-        /* statut EN_ATTENTE après soumission — contrat §3 */
-        document.getElementById('mainForm').action = "{{ url_for('annonces.publier') }}";
-        document.getElementById('mainForm').submit();
+    // Mise à jour de la récap en direct
+    function updateRecap() {
+        document.getElementById('recap-titre').textContent = document.getElementsByName('titre')[0].value || '—';
+        document.getElementById('recap-type').textContent = document.getElementsByName('type')[0].value || '—';
+        document.getElementById('recap-surface').textContent = (document.getElementsByName('surface')[0].value || '0') + ' m²';
+        document.getElementById('recap-adresse').textContent = (document.getElementsByName('adresse')[0].value || '—') + ' (' + (document.getElementsByName('wilaya')[0].value || '') + ')';
+        
+        const prix = parseInt(document.getElementById('prixInput').value) || 0;
+        document.getElementById('recap-prix').textContent = prix.toLocaleString('fr-DZ') + ' DA';
+        
+        const filesCount = document.getElementById('fileInput').files.length;
+        document.getElementById('recap-photos').textContent = filesCount + ' photo(s) sélectionnée(s)';
+        
+        const isPremium = document.getElementById('radio-premium').checked;
+        document.getElementById('recap-visibilite').textContent = isPremium ? 'Premium Boostée (4 900 DA)' : 'Standard (Gratuit)';
     }
-    /* =============================================================================
-      POSITIONNEMENT DU PRIX — logique complète (NOUVEAU)
-      =============================================================================
-      AI_ESTIM   : estimation DzairAI de référence (DA)
-      MARGE_PCT  : ±5 % = fourchette "prix marché"
-      currentZone: zone sélectionnée par le clic ('under' | 'market' | 'over' | null)
-      ============================================================================= */
 
-    const AI_ESTIM = 78500000; /* estimation DzairAI en DA */
-    const MARGE_PCT = 0.05; /* fourchette ± 5 %         */
-
-    let currentZone = null;
-
-    /* Formate un entier en séparateur d'espace style fr-DZ */
+    // Gestion du positionnement du prix
     function fmt(n) {
         return Math.round(n).toLocaleString('fr-DZ');
     }
 
-    /* Appelée à chaque frappe dans le champ prix */
     function onPrixChange(val) {
         const num = parseInt(val) || 0;
         document.getElementById('priceDisplay').textContent = fmt(num);
         refreshPrixUI(num);
     }
 
-    /* Met à jour badge diff + panneau IA actif sans changer la zone sélectionnée */
     function refreshPrixUI(prix) {
         const diff = prix - AI_ESTIM;
         const pct = ((diff / AI_ESTIM) * 100).toFixed(1);
         const absDiff = Math.abs(diff);
         const absPct = Math.abs(parseFloat(pct));
 
-        /* ── Badge diff ──────────────────────────────────────────────── */
         const badgeDiff = document.getElementById('badgeDiff');
         if (prix === 0) {
             badgeDiff.textContent = '—';
-            badgeDiff.style.color = '#555';
+            badgeDiff.style.color = 'var(--text-muted)';
         } else if (diff > 0) {
-            badgeDiff.textContent = `+${fmt(diff)} DA (+${absPct}% au-dessus)`;
-            badgeDiff.style.color = '#f97316';
+            badgeDiff.textContent = `+${fmt(diff)} DA (+${absPct}% au-dessus de l'estimation)`;
+            badgeDiff.style.color = 'var(--warning)';
         } else if (diff < 0) {
-            badgeDiff.textContent = `−${fmt(absDiff)} DA (−${absPct}% en dessous)`;
-            badgeDiff.style.color = '#00cc88';
+            badgeDiff.textContent = `−${fmt(absDiff)} DA (−${absPct}% en dessous de l'estimation)`;
+            badgeDiff.style.color = 'var(--success)';
         } else {
-            badgeDiff.textContent = 'Exactement sur l\'estimation';
-            badgeDiff.style.color = '#00d4d4';
+            badgeDiff.textContent = 'Exactement aligné avec le marché';
+            badgeDiff.style.color = 'var(--cyan)';
         }
 
-        /* ── Panneau IA actif ────────────────────────────────────────── */
         if (currentZone) refreshAiPanel(currentZone, prix, diff, absDiff, absPct);
     }
 
-    /* Sélectionne une zone ET rafraîchit le panneau IA correspondant */
     function selectZone(zone) {
-        /* Désactiver tous les liens */
         document.getElementById('btnUnder').classList.remove('active');
         document.getElementById('btnMarket').classList.remove('active');
         document.getElementById('btnOver').classList.remove('active');
 
-        /* Masquer tous les panneaux */
         document.getElementById('aiPanelUnder').classList.remove('visible');
         document.getElementById('aiPanelMarket').classList.remove('visible');
         document.getElementById('aiPanelOver').classList.remove('visible');
 
-        /* Si on reclique sur la zone déjà active → déselectionner */
         if (currentZone === zone) {
             currentZone = null;
             return;
@@ -1520,15 +1355,9 @@
 
         currentZone = zone;
 
-        /* Activer le bouton choisi */
-        const btnMap = {
-            under: 'btnUnder',
-            market: 'btnMarket',
-            over: 'btnOver'
-        };
+        const btnMap = { under: 'btnUnder', market: 'btnMarket', over: 'btnOver' };
         document.getElementById(btnMap[zone]).classList.add('active');
 
-        /* Calculer les valeurs courantes */
         const prix = parseInt(document.getElementById('prixInput').value) || 0;
         const diff = prix - AI_ESTIM;
         const absDiff = Math.abs(diff);
@@ -1537,7 +1366,6 @@
         refreshAiPanel(zone, prix, diff, absDiff, absPct);
     }
 
-    /* Construit et affiche le contenu du panneau DzairAI pour une zone donnée */
     function refreshAiPanel(zone, prix, diff, absDiff, absPct) {
         const estim = fmt(AI_ESTIM);
         const prixFmt = fmt(prix);
@@ -1552,21 +1380,13 @@
         if (zone === 'under') {
             panelId = 'aiPanelUnder';
             if (prix === 0) {
-                bodyText = 'Saisissez votre prix pour obtenir une analyse.';
+                bodyText = 'Saisissez votre prix pour obtenir l\'analyse de marché.';
             } else if (prix >= AI_ESTIM) {
-                bodyText = `Votre prix (${prixFmt} DA) est égal ou supérieur à l'estimation DzairAI (${estim} DA). Il n'est pas sous-évalué. Envisagez de le baisser sous ${bas} DA pour stimuler l'intérêt.`;
+                bodyText = `Votre prix (${prixFmt} DA) est égal ou supérieur à l'estimation (${estim} DA). Il n'est pas considéré comme sous-évalué.`;
             } else {
                 const ecart = parseFloat(absPct);
-                if (ecart <= 5) {
-                    bodyText = `Votre prix (${prixFmt} DA) est légèrement sous l'estimation (−${absPct}%, soit −${diffFmt} DA). Bonne stratégie pour déclencher des visites rapidement tout en limitant la perte de valeur.`;
-                    footerText = 'Délai estimé : < 7 jours';
-                } else if (ecart <= 15) {
-                    bodyText = `Votre prix (${prixFmt} DA) est nettement sous l'estimation (−${absPct}%, soit −${diffFmt} DA). Vous maximisez vos chances d'une vente très rapide, mais laissez de la valeur sur la table.`;
-                    footerText = 'Délai estimé : 3 – 5 jours';
-                } else {
-                    bodyText = `Votre prix (${prixFmt} DA) est très inférieur à l'estimation (−${absPct}%, soit −${diffFmt} DA). Vente quasi assurée sous 48 h, mais la perte financière est significative.`;
-                    footerText = '⚠ Perte estimée : −' + diffFmt + ' DA';
-                }
+                bodyText = `Votre prix est sous l'estimation de −${absPct}%. C'est une excellente stratégie pour attirer rapidement des acheteurs solvables.`;
+                footerText = 'Délai moyen estimé : moins de 10 jours';
             }
             document.getElementById('aiBodyUnder').textContent = bodyText;
             document.getElementById('aiFooterUnder').textContent = footerText;
@@ -1574,18 +1394,15 @@
         } else if (zone === 'market') {
             panelId = 'aiPanelMarket';
             if (prix === 0) {
-                bodyText = 'Saisissez votre prix pour obtenir une analyse.';
+                bodyText = 'Saisissez votre prix pour obtenir l\'analyse.';
             } else {
                 const inRange = prix >= AI_ESTIM * (1 - MARGE_PCT) && prix <= AI_ESTIM * (1 + MARGE_PCT);
                 if (inRange) {
-                    bodyText = `Votre prix (${prixFmt} DA) est dans la fourchette de marché DzairAI [${bas} – ${haut} DA]. Positionnement optimal : visibilité maximale et délai de vente raisonnable.`;
-                    footerText = '✓ Délai estimé : 10 – 15 jours';
-                } else if (prix < AI_ESTIM) {
-                    bodyText = `Votre prix (${prixFmt} DA) est sous la fourchette de marché (${bas} DA). Remontez-le légèrement pour vous positionner dans la zone optimale [${bas} – ${haut} DA].`;
-                    footerText = 'Ajustement suggéré : +' + diffFmt + ' DA';
+                    bodyText = `Votre prix est idéalement situé dans la fourchette du marché [${bas} - ${haut} DA]. C'est le meilleur compromis visibilité / rentabilité.`;
+                    footerText = '✓ Positionnement validé par DzairAI';
                 } else {
-                    bodyText = `Votre prix (${prixFmt} DA) dépasse la fourchette de marché (${haut} DA). Réduisez-le pour entrer dans la zone optimale [${bas} – ${haut} DA] et attirer plus d'acheteurs.`;
-                    footerText = 'Ajustement suggéré : −' + diffFmt + ' DA';
+                    bodyText = `Votre prix est hors de la fourchette idéale de marché [${bas} - ${haut} DA]. Un réajustement est conseillé.`;
+                    footerText = 'Ajustement suggéré : ' + (diff > 0 ? 'baisser' : 'monter') + ' de ' + diffFmt + ' DA';
                 }
             }
             document.getElementById('aiBodyMarket').textContent = bodyText;
@@ -1594,27 +1411,35 @@
         } else if (zone === 'over') {
             panelId = 'aiPanelOver';
             if (prix === 0) {
-                bodyText = 'Saisissez votre prix pour obtenir une analyse.';
+                bodyText = 'Saisissez votre prix pour obtenir l\'analyse.';
             } else if (prix <= AI_ESTIM) {
-                bodyText = `Votre prix (${prixFmt} DA) est inférieur ou égal à l'estimation DzairAI (${estim} DA). Il n'est pas sur-évalué. La zone "Sur-évalué" s'applique aux prix au-dessus de ${haut} DA.`;
+                bodyText = `Votre prix est inférieur à l'estimation. Il n'est pas sur-évalué.`;
             } else {
-                const ecart = parseFloat(absPct);
-                if (ecart <= 5) {
-                    bodyText = `Votre prix (${prixFmt} DA) est légèrement au-dessus de l'estimation (+${absPct}%). Impact modéré : la vente pourrait être ralentie de 5 à 10 jours.`;
-                    footerText = 'Délai supplémentaire estimé : +7 jours';
-                } else if (ecart <= 15) {
-                    bodyText = `Votre prix (${prixFmt} DA) est ${absPct}% au-dessus du marché (+${diffFmt} DA). Risque réel de sous-exposition. DzairAI recommande de ne pas dépasser ${haut} DA.`;
-                    footerText = '⚠ Délai supplémentaire : +15 à 20 jours';
-                } else {
-                    bodyText = `Votre prix (${prixFmt} DA) est très sur-évalué (+${absPct}%, soit +${diffFmt} DA au-dessus du marché). Les acheteurs comparent en temps réel : un écart aussi élevé réduit drastiquement les contacts.`;
-                    footerText = '🚨 Risque de non-vente élevé';
-                }
+                bodyText = `Votre prix est au-dessus du marché de +${absPct}%. Cela peut ralentir l'intérêt des acquéreurs et rallonger le délai de vente.`;
+                footerText = 'Délai supplémentaire estimé : +15 à 25 jours';
             }
             document.getElementById('aiBodyOver').textContent = bodyText;
             document.getElementById('aiFooterOver').textContent = footerText;
         }
 
-        /* Afficher le bon panneau */
         if (panelId) document.getElementById(panelId).classList.add('visible');
     }
+
+    // Soumissions de formulaire
+    function saveDraft() {
+        document.getElementById('mainForm').action = "{{ url_for('annonces.publier') }}?action=brouillon";
+        document.getElementById('mainForm').submit();
+    }
+
+    function submitForm() {
+        document.getElementById('mainForm').action = "{{ url_for('annonces.publier') }}";
+        document.getElementById('mainForm').submit();
+    }
+
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', () => {
+        onPrixChange(document.getElementById('prixInput').value);
+        goStep('general');
+    });
 </script>
+{% endblock %}
