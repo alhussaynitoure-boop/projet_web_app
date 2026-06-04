@@ -1,37 +1,638 @@
 {% extends "base.html" %}
-{% block title %}Modifier l'annonce{% endblock %}
+{% block title %}Modifier l'annonce — DZ-Immobilier{% endblock %}
+
+{% block styles %}
+<style>
+    /* =========================================================================
+       modifier.html — Styles spécifiques à la page de modification d'annonce
+       Design fidèle à publier.html : dark mode, cards, form__group, bottom bar
+       ========================================================================= */
+
+    .mod-wrapper {
+        max-width: 860px;
+        margin: 0 auto;
+        padding-bottom: 110px; /* espace pour la bottom bar sticky */
+    }
+
+    /* ── En-tête ──────────────────────────────────────────────────────────── */
+    .mod-header {
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .mod-header__icon {
+        width: 48px;
+        height: 48px;
+        background: rgba(233, 30, 140, 0.1);
+        border: 1px solid rgba(233, 30, 140, 0.2);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        flex-shrink: 0;
+        margin-top: 4px;
+    }
+
+    .mod-header__text h1 {
+        font-size: 1.7rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        margin-bottom: 0.3rem;
+    }
+
+    .mod-header__text p {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+    }
+
+    /* ── Status banner (annonce actuellement rejetée / en attente) ─────────── */
+    .status-banner {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.9rem 1.1rem;
+        border-radius: var(--radius-md);
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid;
+        animation: slideDown 0.3s var(--ease);
+    }
+    .status-banner--rejetee {
+        background: rgba(239, 68, 68, 0.08);
+        border-color: rgba(239, 68, 68, 0.3);
+        color: #f87171;
+    }
+    .status-banner--en_attente {
+        background: rgba(245, 158, 11, 0.08);
+        border-color: rgba(245, 158, 11, 0.3);
+        color: #fbbf24;
+    }
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Section cards ────────────────────────────────────────────────────── */
+    .mod-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+    }
+
+    /* override card hover pour les formulaires (pas de translateY) */
+    .mod-sections .card {
+        padding: 1.5rem;
+        transition: border-color var(--dur) var(--ease);
+    }
+    .mod-sections .card:hover {
+        transform: none;
+        border-color: rgba(233, 30, 140, 0.18);
+        box-shadow: none;
+    }
+
+    /* ── Card header interne ──────────────────────────────────────────────── */
+    .card-section-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 1.4rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .card-section-icon {
+        width: 34px;
+        height: 34px;
+        background: rgba(0, 212, 212, 0.1);
+        border-radius: var(--radius-sm);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+
+    .card-section-title {
+        font-family: 'Syne', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+    }
+
+    /* ── Grille 2 colonnes dans les cards ─────────────────────────────────── */
+    .form-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    /* ── Select wrapper avec flèche personnalisée ─────────────────────────── */
+    .select-wrapper {
+        position: relative;
+    }
+    .select-wrapper::after {
+        content: '▾';
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+        font-size: 12px;
+    }
+    .select-wrapper .form__select {
+        padding-right: 36px;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+
+    /* ── Input avec suffixe unité ─────────────────────────────────────────── */
+    .input-with-suffix {
+        position: relative;
+    }
+    .input-with-suffix .form__input {
+        padding-right: 52px;
+    }
+    .input-suffix-label {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        pointer-events: none;
+        font-family: 'Syne', sans-serif;
+    }
+
+    /* ── Zone d'upload photos ─────────────────────────────────────────────── */
+    .upload-zone {
+        border: 1.5px dashed var(--border);
+        border-radius: var(--radius-lg);
+        padding: 2rem 1.5rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all var(--dur) var(--ease);
+        background: var(--bg-surface);
+        position: relative;
+    }
+    .upload-zone:hover {
+        border-color: var(--cyan);
+        background: rgba(0, 212, 212, 0.03);
+    }
+    .upload-zone input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+    }
+    .upload-zone__icon {
+        font-size: 2rem;
+        color: var(--cyan);
+        margin-bottom: 0.6rem;
+    }
+    .upload-zone__title {
+        font-family: 'Syne', sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.3rem;
+    }
+    .upload-zone__sub {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+    .upload-zone__sub span {
+        color: var(--cyan);
+        font-weight: 600;
+    }
+
+    /* ── Aperçu photos actuelles ──────────────────────────────────────────── */
+    .current-photos {
+        margin-top: 1rem;
+    }
+    .current-photos__label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        font-family: 'Syne', sans-serif;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin-bottom: 0.6rem;
+    }
+    .photos-strip {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .photo-thumb {
+        width: 72px;
+        height: 56px;
+        border-radius: var(--radius-sm);
+        background: var(--bg-surface);
+        border: 1.5px solid var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        overflow: hidden;
+    }
+    .photo-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* ── Compteur de caractères ───────────────────────────────────────────── */
+    .char-counter {
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        text-align: right;
+        margin-top: 4px;
+        font-family: 'Syne', sans-serif;
+    }
+    .char-counter.warn { color: var(--warning); }
+    .char-counter.ok   { color: var(--success); }
+
+    /* ── Bottom bar sticky ────────────────────────────────────────────────── */
+    .mod-bottom-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(19, 22, 29, 0.96);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        border-top: 1px solid var(--border);
+        padding: 1rem 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        z-index: 99;
+        gap: 1rem;
+    }
+
+    .mod-bottom-bar__left {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+    }
+
+    .mod-bottom-bar__left .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--warning);
+        animation: pulse-dot 2s ease-in-out infinite;
+    }
+    @keyframes pulse-dot {
+        0%, 100% { opacity: 1; }
+        50%       { opacity: 0.4; }
+    }
+
+    .mod-bottom-bar__actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    /* ── Lien retour ──────────────────────────────────────────────────────── */
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        transition: color var(--dur) var(--ease);
+        margin-top: 1rem;
+    }
+    .back-link:hover { color: var(--text-secondary); }
+
+    /* ── Responsive ───────────────────────────────────────────────────────── */
+    @media (max-width: 640px) {
+        .form-grid-2 { grid-template-columns: 1fr; }
+        .mod-header { flex-direction: column; gap: 0.75rem; }
+        .mod-bottom-bar__left { display: none; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<h1>✏️ Modifier l'annonce</h1>
+<div class="mod-wrapper">
 
-<form method="POST" enctype="multipart/form-data">
-    <label>Titre *</label>
-    <input type="text" name="titre" value="{{ annonce.titre }}" required>
+    <!-- ── En-tête ──────────────────────────────────────────────────────── -->
+    <div class="mod-header">
+        <div class="mod-header__icon">✏️</div>
+        <div class="mod-header__text">
+            <h1>Modifier l'annonce</h1>
+            <p>Mettez à jour les informations de votre bien pour maximiser son attractivité.</p>
+        </div>
+    </div>
 
-    <label>Description</label>
-    <textarea name="description" rows="4">{{ annonce.description or '' }}</textarea>
+    <!-- ── Messages flash ───────────────────────────────────────────────── -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert--{{ category }}" style="margin-bottom: 1rem;">
+                    <span class="alert__icon">
+                        {% if category == 'danger' %}🔴{% elif category == 'success' %}✅{% else %}⚠️{% endif %}
+                    </span>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-    <label>Prix (DA) *</label>
-    <input type="number" name="prix" value="{{ annonce.prix }}" required>
+    <!-- ── Bandeau statut actuel ────────────────────────────────────────── -->
+    {% if annonce.statut == 'REJETEE' %}
+    <div class="status-banner status-banner--rejetee">
+        <span>❌</span>
+        <span><strong>Annonce rejetée.</strong> Corrigez les informations demandées puis re-soumettez. Elle repassera en validation.</span>
+    </div>
+    {% elif annonce.statut == 'EN_ATTENTE' %}
+    <div class="status-banner status-banner--en_attente">
+        <span>⏳</span>
+        <span><strong>Annonce en attente de validation.</strong> Toute modification la remettra dans la file de modération.</span>
+    </div>
+    {% endif %}
 
-    <label>Surface (m²) *</label>
-    <input type="number" name="surface" value="{{ annonce.surface }}" required>
+    <!-- ── Formulaire ───────────────────────────────────────────────────── -->
+    <form method="POST" enctype="multipart/form-data" id="modForm">
+        <div class="mod-sections">
 
-    <label>Adresse complète *</label>
-    <input type="text" name="adresse" value="{{ annonce.adresse }}" required>
+            <!-- CARTE 1 : Informations principales ─────────────────────── -->
+            <div class="card">
+                <div class="card-section-header">
+                    <div class="card-section-icon">📝</div>
+                    <span class="card-section-title">Informations principales</span>
+                </div>
 
-    <label>Type de bien *</label>
-    <select name="type" required>
-        <option value="APPARTEMENT" {% if annonce.type_bien=='APPARTEMENT' %}selected{% endif %}>Appartement</option>
-        <option value="MAISON" {% if annonce.type_bien=='MAISON' %}selected{% endif %}>Maison</option>
-        <option value="TERRAIN" {% if annonce.type_bien=='TERRAIN' %}selected{% endif %}>Terrain</option>
-        <option value="COMMERCIAL" {% if annonce.type_bien=='COMMERCIAL' %}selected{% endif %}>Commercial</option>
-    </select>
+                <!-- Titre -->
+                <div class="form__group" style="margin-bottom: 1.25rem;">
+                    <label class="form__label" for="titre">Titre de l'annonce *</label>
+                    <input
+                        type="text"
+                        id="titre"
+                        name="titre"
+                        class="form__input"
+                        value="{{ annonce.titre }}"
+                        required
+                        maxlength="200"
+                        placeholder="Ex: Spacieux F3 au cœur d'Alger Centre"
+                        oninput="updateCharCount(this, 'titre-count', 200)"
+                    >
+                    <span class="char-counter" id="titre-count">{{ annonce.titre | length }}/200</span>
+                </div>
 
-    <label>Ajouter des photos (optionnel)</label>
-    <input type="file" name="photos" multiple accept="image/png,image/jpeg,image/jpg,image/webp">
+                <!-- Description -->
+                <div class="form__group">
+                    <label class="form__label" for="description">Description complète</label>
+                    <textarea
+                        id="description"
+                        name="description"
+                        class="form__textarea"
+                        rows="5"
+                        placeholder="Décrivez en détail les caractéristiques du bien, les finitions, l'emplacement, les commodités à proximité..."
+                        oninput="updateCharCount(this, 'desc-count', 2000)"
+                    >{{ annonce.description or '' }}</textarea>
+                    <span class="char-counter" id="desc-count">{{ (annonce.description or '') | length }}/2000</span>
+                </div>
+            </div>
 
-    <button type="submit">💾 Enregistrer les modifications</button>
-</form>
+            <!-- CARTE 2 : Caractéristiques du bien ─────────────────────── -->
+            <div class="card">
+                <div class="card-section-header">
+                    <div class="card-section-icon">🏢</div>
+                    <span class="card-section-title">Caractéristiques du bien</span>
+                </div>
 
-<p><a href="{{ url_for('mes_annonces') }}">← Retour à mes annonces</a></p>
+                <div class="form-grid-2" style="margin-bottom: 1rem;">
+                    <!-- Prix -->
+                    <div class="form__group">
+                        <label class="form__label" for="prix">Prix *</label>
+                        <div class="input-with-suffix">
+                            <input
+                                type="number"
+                                id="prix"
+                                name="prix"
+                                class="form__input"
+                                value="{{ annonce.prix | int }}"
+                                required
+                                min="0"
+                                step="1000"
+                                placeholder="Ex: 7500000"
+                            >
+                            <span class="input-suffix-label">DA</span>
+                        </div>
+                    </div>
+
+                    <!-- Surface -->
+                    <div class="form__group">
+                        <label class="form__label" for="surface">Surface *</label>
+                        <div class="input-with-suffix">
+                            <input
+                                type="number"
+                                id="surface"
+                                name="surface"
+                                class="form__input"
+                                value="{{ annonce.surface }}"
+                                required
+                                min="1"
+                                step="0.5"
+                                placeholder="Ex: 85"
+                            >
+                            <span class="input-suffix-label">m²</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <!-- Adresse -->
+                    <div class="form__group">
+                        <label class="form__label" for="adresse">Adresse complète *</label>
+                        <input
+                            type="text"
+                            id="adresse"
+                            name="adresse"
+                            class="form__input"
+                            value="{{ annonce.adresse }}"
+                            required
+                            placeholder="Ex: 12 Rue Didouche Mourad, Alger"
+                        >
+                    </div>
+
+                    <!-- Type de bien -->
+                    <div class="form__group">
+                        <label class="form__label" for="type">Type de bien *</label>
+                        <div class="select-wrapper">
+                            <select id="type" name="type" class="form__select" required>
+                                <option value="APPARTEMENT" {% if annonce.type_bien == 'APPARTEMENT' %}selected{% endif %}>
+                                    🏠 Appartement
+                                </option>
+                                <option value="MAISON" {% if annonce.type_bien == 'MAISON' %}selected{% endif %}>
+                                    🏡 Maison / Villa
+                                </option>
+                                <option value="TERRAIN" {% if annonce.type_bien == 'TERRAIN' %}selected{% endif %}>
+                                    🌿 Terrain
+                                </option>
+                                <option value="COMMERCIAL" {% if annonce.type_bien == 'COMMERCIAL' %}selected{% endif %}>
+                                    🏪 Local commercial
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARTE 3 : Photos ─────────────────────────────────────────── -->
+            <div class="card">
+                <div class="card-section-header">
+                    <div class="card-section-icon">📸</div>
+                    <span class="card-section-title">Photos de l'annonce</span>
+                </div>
+
+                <!-- Zone de drop / upload -->
+                <div class="upload-zone" id="uploadZone">
+                    <input
+                        type="file"
+                        name="photos"
+                        id="photosInput"
+                        multiple
+                        accept="image/png,image/jpeg,image/jpg,image/webp"
+                        onchange="handleFileSelect(this)"
+                    >
+                    <div class="upload-zone__icon">☁️</div>
+                    <div class="upload-zone__title">Ajouter de nouvelles photos</div>
+                    <p class="upload-zone__sub">
+                        Glissez vos fichiers ici ou <span>cliquez pour parcourir</span>
+                    </p>
+                    <p class="upload-zone__sub" style="margin-top: 0.25rem;">PNG, JPG, WEBP — max 5 Mo par photo</p>
+                </div>
+
+                <!-- Aperçu des nouvelles photos sélectionnées -->
+                <div id="newPhotosPreview" class="current-photos" style="display:none;">
+                    <div class="current-photos__label">Nouvelles photos sélectionnées</div>
+                    <div class="photos-strip" id="newPhotosThumbs"></div>
+                </div>
+
+                <!-- Photos actuellement en ligne -->
+                {% if medias and medias | length > 0 %}
+                <div class="current-photos" style="margin-top: 1.25rem;">
+                    <div class="current-photos__label">Photos actuellement en ligne ({{ medias | length }})</div>
+                    <div class="photos-strip">
+                        {% for media in medias %}
+                        <div class="photo-thumb" title="{{ media.url }}">
+                            <img
+                                src="{{ url_for('static', filename=media.url.replace('static/', '', 1)) }}"
+                                alt="Photo annonce"
+                                onerror="this.style.display='none'; this.parentElement.innerHTML='🖼️';"
+                            >
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.75rem; text-align: center;">
+                    Aucune photo en ligne pour cette annonce.
+                </p>
+                {% endif %}
+            </div>
+
+        </div><!-- /.mod-sections -->
+
+        <!-- Lien retour (visible sous les cards) -->
+        <a href="{{ url_for('mes_annonces') }}" class="back-link">
+            ← Retour à mes annonces
+        </a>
+
+        <!-- ── Bottom bar sticky ─────────────────────────────────────────── -->
+        <div class="mod-bottom-bar">
+            <div class="mod-bottom-bar__left">
+                <div class="dot"></div>
+                <span>Modifications non sauvegardées</span>
+            </div>
+            <div class="mod-bottom-bar__actions">
+                <a href="{{ url_for('mes_annonces') }}" class="btn btn--ghost btn--md">
+                    Annuler
+                </a>
+                <button type="submit" class="btn btn--primary btn--md" id="submitBtn">
+                    💾 Enregistrer les modifications
+                </button>
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<script>
+    /* ── Compteur de caractères ─────────────────────────────────────────── */
+    function updateCharCount(input, counterId, max) {
+        const len = input.value.length;
+        const el = document.getElementById(counterId);
+        if (!el) return;
+        el.textContent = `${len}/${max}`;
+        el.className = 'char-counter' + (len > max * 0.9 ? ' warn' : len > max * 0.5 ? ' ok' : '');
+    }
+
+    /* Initialiser les compteurs au chargement */
+    document.addEventListener('DOMContentLoaded', () => {
+        const titre = document.getElementById('titre');
+        const desc  = document.getElementById('description');
+        if (titre) updateCharCount(titre, 'titre-count', 200);
+        if (desc)  updateCharCount(desc,  'desc-count',  2000);
+    });
+
+    /* ── Aperçu des nouvelles photos sélectionnées ──────────────────────── */
+    function handleFileSelect(input) {
+        const preview  = document.getElementById('newPhotosPreview');
+        const thumbs   = document.getElementById('newPhotosThumbs');
+        const files    = Array.from(input.files);
+
+        thumbs.innerHTML = '';
+
+        if (files.length === 0) {
+            preview.style.display = 'none';
+            return;
+        }
+
+        preview.style.display = 'block';
+
+        files.forEach(file => {
+            const div = document.createElement('div');
+            div.className = 'photo-thumb';
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.alt = file.name;
+                div.appendChild(img);
+            };
+            reader.readAsDataURL(file);
+            thumbs.appendChild(div);
+        });
+    }
+
+    /* ── Animation du bouton submit ─────────────────────────────────────── */
+    document.getElementById('modForm').addEventListener('submit', function () {
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Enregistrement…';
+    });
+
+    /* ── Indicateur "non sauvegardé" (dot) ──────────────────────────────── */
+    const dot = document.querySelector('.mod-bottom-bar .dot');
+    document.getElementById('modForm').addEventListener('input', () => {
+        if (dot) dot.style.background = 'var(--warning)';
+    });
+</script>
 {% endblock %}

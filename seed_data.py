@@ -119,12 +119,15 @@ def creer_vendeurs_et_acheteurs():
 
             if result is None:
                 # Insérer dans UTILISATEUR
+                # CORRECTION : 'telephone' ajouté pour être cohérent avec le schéma
+                # de models.py (colonne ajoutée lors de la correction de l'incohérence P1).
                 curseur.execute(
                     """
-                    INSERT INTO UTILISATEUR (nom, email, motDePasse, role)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO UTILISATEUR (nom, email, motDePasse, role, telephone)
+                    VALUES (?, ?, ?, ?, ?)
                     """,
-                    (vendeur['nom'], vendeur['email'], vendeur['motDePasse'], vendeur['role'])
+                    (vendeur['nom'], vendeur['email'], vendeur['motDePasse'], vendeur['role'], None)
+                    # telephone = None (NULL) : les données de test n'ont pas de numéro de téléphone.
                 )
                 id_utilisateur = curseur.lastrowid
 
@@ -156,12 +159,15 @@ def creer_vendeurs_et_acheteurs():
 
             if result is None:
                 # Insérer dans UTILISATEUR
+                # CORRECTION : 'telephone' ajouté pour être cohérent avec le schéma
+                # de models.py (colonne ajoutée lors de la correction de l'incohérence P1).
                 curseur.execute(
                     """
-                    INSERT INTO UTILISATEUR (nom, email, motDePasse, role)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO UTILISATEUR (nom, email, motDePasse, role, telephone)
+                    VALUES (?, ?, ?, ?, ?)
                     """,
-                    (acheteur['nom'], acheteur['email'], acheteur['motDePasse'], acheteur['role'])
+                    (acheteur['nom'], acheteur['email'], acheteur['motDePasse'], acheteur['role'], None)
+                    # telephone = None (NULL) : les données de test n'ont pas de numéro de téléphone.
                 )
                 id_utilisateur = curseur.lastrowid
 

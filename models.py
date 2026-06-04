@@ -76,6 +76,16 @@ def get_schema():
         -- DEFAULT 'ACHETEUR' → si on ne précise pas le rôle, l'utilisateur
         -- est acheteur par défaut.
 
+        -- ── AJOUT (correction incohérence schéma) ──────────────────────────────
+        -- Cette colonne était absente du schéma initial alors que :
+        --   • auth.py récupère le téléphone depuis le formulaire d'inscription
+        --   • app.py demande u.telephone dans la requête de détail d'annonce
+        -- Son absence causait une erreur SQL "no such column: u.telephone".
+        telephone       VARCHAR(20),
+        -- VARCHAR(20) = numéro de téléphone (ex: "0555123456").
+        -- Nullable → le champ est optionnel lors de l'inscription.
+        -- ─────────────────────────────────────────────────────────────────────
+
         dateInscription DATETIME DEFAULT (datetime('now'))
         -- datetime('now') → fonction SQLite qui retourne la date/heure actuelle
         -- au format : "2024-05-29 18:30:00"

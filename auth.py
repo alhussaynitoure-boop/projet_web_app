@@ -214,13 +214,18 @@ def inscription():
         # Si la base de données est compromise, les mots de passe restent secrets.
 
         # ── 5. Insertion dans la table UTILISATEUR ─────────────────────────────
+        # CORRECTION : 'telephone' est maintenant inclus dans l'INSERT.
+        # Auparavant, la variable était récupérée du formulaire (ligne 152)
+        # mais jamais sauvegardée car la colonne n'existait pas dans le schéma.
+        # ────────────────────────────────────────────────────────────────────
         curseur = db.execute(
             """
-            INSERT INTO UTILISATEUR (nom, email, motDePasse, role)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO UTILISATEUR (nom, email, motDePasse, role, telephone)
+            VALUES (?, ?, ?, ?, ?)
             """,
-            (nom, email, mdp_hache, role)
-            # On insère le nom, email, MOT DE PASSE HACHÉ et le rôle.
+            (nom, email, mdp_hache, role, telephone or None)
+            # telephone or None : si le champ est vide (""), on stocke NULL
+            # plutôt qu'une chaîne vide, ce qui est plus propre en base de données.
             # 'dateInscription' n'est pas précisé → SQLite utilise DEFAULT datetime('now')
         )
         # 'curseur' est l'objet résultat de la requête INSERT.

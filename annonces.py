@@ -385,7 +385,9 @@ def modifier(annonce_id):
         """
         SELECT 
             a.id, a.titre, a.description, a.prix, a.statut,
-            b.id as bien_id, b.adresse, b.surface, b.type
+            b.id as bien_id, b.adresse, b.surface, b.type as type_bien
+            -- Alias 'type_bien' pour cohérence avec le template modifier.html
+            -- et les autres templates (annonce.html, index.html utilisent type_bien)
         FROM ANNONCE a
         JOIN BIEN_IMMOBILIER b ON a.id_bien = b.id
         WHERE a.id = ?
@@ -400,11 +402,20 @@ def modifier(annonce_id):
         return redirect(url_for('mes_annonces'))
     
     # ── 3. Vérification du statut ───────────────────────────────────────────
-    # On empêche la modification des annonces déjà validées ou rejetées
-    # pour éviter qu'un vendeur ne modifie une annonce après approbation.
-    if annonce['statut'] not in ('EN_ATTENTE', 'BROUILLON'):
-        flash("Vous ne pouvez modifier que les annonces en attente ou en brouillon.", "warning")
+    # On autorise la modification des annonces EN_ATTENTE, BROUILLON et REJETEE.
+    # REJETEE : le vendeur doit pouvoir corriger son annonce suite au refus admin.
+    # PUBLIEE et ARCHIVEE restent non modifiables (re-publication = nouvelle annonce).
+    if annonce['statut'] not in ('EN_ATTENTE', 'BROUILLON', 'REJETEE'):
+        flash("Vous ne pouvez modifier que les annonces en brouillon, en attente ou rejetées.", "warning")
         return redirect(url_for('mes_annonces'))
+
+    # ── 4a. Récupération des médias existants (pour le template) ────────────
+    # On récupère les photos actuelles de l'annonce pour les afficher dans le
+    # formulaire de modification (section "Photos actuellement en ligne").
+    medias = db.execute(
+        "SELECT url, ordre FROM MEDIA WHERE id_annonce = ? ORDER BY ordre ASC",
+        (annonce_id,)
+    ).fetchall()
     
     # ── 4. Traitement du formulaire (POST) ──────────────────────────────────
     if request.method == 'POST':
@@ -454,8 +465,8 @@ def modifier(annonce_id):
         if erreurs:
             for err in erreurs:
                 flash(err, "danger")
-            # On réaffiche le formulaire avec les valeurs saisies
-            return render_template('modifier.html', annonce=annonce,
+            # On réaffiche le formulaire avec les valeurs saisies + les médias existants
+            return render_template('modifier.html', annonce=annonce, medias=medias,
                                    titre=nouveau_titre, description=nouvelle_desc,
                                    prix=nouveau_prix_str, surface=nouvelle_surface_str,
                                    adresse=nouvelle_adresse, type_bien=nouveau_type)
@@ -530,8 +541,10 @@ def modifier(annonce_id):
         return redirect(url_for('mes_annonces'))
     
     # ── 5. Affichage du formulaire pré-rempli (GET) ─────────────────────────
-    # On passe l'objet 'annonce' au template pour qu'il pré-remplisse les champs
-    return render_template('modifier.html', annonce=annonce)
+    # On passe l'annonce ET les médias au template :
+    #   - annonce  → pour pré-remplir tous les champs du formulaire
+    #   - medias   → pour afficher les photos actuellement en ligne
+    return render_template('modifier.html', annonce=annonce, medias=medias)
 
 
 # ── Route : Supprimer une annonce (/supprimer/<id>) ───────────────────────────
