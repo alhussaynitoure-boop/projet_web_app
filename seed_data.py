@@ -245,9 +245,9 @@ def creer_biens_immobiliers():
         },
         # Terrains
         {
-            'adresse': 'Zone industrielle ouest, Parcelle No. 124, Sétif',
-            'surface': 500.0,
-            'type': 'TERRAIN'
+            'adresse': 'Quartier résidentiel huppé, Sétif',
+            'surface': 350.0,
+            'type': 'MAISON'
         },
         {
             'adresse': 'Route nationale 5, Terrain agricole, Tizi Ouzou',
@@ -336,7 +336,8 @@ def creer_annonces_et_media(ids_vendeurs, ids_biens):
             'statut': 'EN_ATTENTE',
             'jours_depuis_publication': 2,
             'vendeur_idx': 0,  # Ahmed Benali
-            'bien_idx': 0      # 12 Rue Didouche Mourad
+            'bien_idx': 0,     # 12 Rue Didouche Mourad
+            'images': ['appartement6.jpg', 'chambre2.jpg']
         },
         {
             'titre': 'Villa familiale avec jardin à Annaba',
@@ -345,7 +346,8 @@ def creer_annonces_et_media(ids_vendeurs, ids_biens):
             'statut': 'EN_ATTENTE',
             'jours_depuis_publication': 1,
             'vendeur_idx': 1,  # Fatima Zahraoui
-            'bien_idx': 3      # Lotissement Les Palmiers
+            'bien_idx': 3,     # Lotissement Les Palmiers
+            'images': ['maison1.jpg', 'villa3.jpg', 'villa.webp']
         },
         {
             'titre': 'Local commercial idéal pour activité libérale',
@@ -354,7 +356,8 @@ def creer_annonces_et_media(ids_vendeurs, ids_biens):
             'statut': 'EN_ATTENTE',
             'jours_depuis_publication': 3,
             'vendeur_idx': 2,  # Karim Dubois
-            'bien_idx': 7      # Centre commercial Bab Ezzouar
+            'bien_idx': 7,     # Centre commercial Bab Ezzouar
+            'images': ['appartement4.jpg']
         },
         # Annonces déjà publiées
         {
@@ -364,16 +367,18 @@ def creer_annonces_et_media(ids_vendeurs, ids_biens):
             'statut': 'PUBLIEE',
             'jours_depuis_publication': 15,
             'vendeur_idx': 0,  # Ahmed Benali
-            'bien_idx': 1      # 45 Avenue des frères Ouamrane
+            'bien_idx': 1,     # 45 Avenue des frères Ouamrane
+            'images': ['chambre.jpg', 'chambre3.jpg']
         },
         {
-            'titre': 'Terrain constructible en zone urbaine',
-            'description': 'Parcel de terrain de 500m² en zone urbaine constructible, viabilisé (eau, électricité, réseau telecom). Titre foncier clair.',
-            'prix': 6500000.0,
+            'titre': 'Superbe Villa d\'architecte avec piscine',
+            'description': 'Magnifique villa contemporaine de très haut standing. Grandes baies vitrées, piscine rectangulaire, grande terrasse en bois et finitions luxueuses.',
+            'prix': 45000000.0,
             'statut': 'PUBLIEE',
             'jours_depuis_publication': 22,
             'vendeur_idx': 1,  # Fatima Zahraoui
-            'bien_idx': 5      # Zone industrielle ouest
+            'bien_idx': 5,     # Sétif
+            'images': ['villa4.jpg', 'villa2.jpg']
         },
         {
             'titre': 'Bureau équipé en centre ville',
@@ -382,7 +387,8 @@ def creer_annonces_et_media(ids_vendeurs, ids_biens):
             'statut': 'PUBLIEE',
             'jours_depuis_publication': 8,
             'vendeur_idx': 2,  # Karim Dubois
-            'bien_idx': 8      # Rue de la République
+            'bien_idx': 8,     # Rue de la République
+            'images': ['appartement2.jpg']
         },
         # Annonces rejetées (avec motifs variés)
         {
@@ -392,7 +398,8 @@ def creer_annonces_et_media(ids_vendeurs, ids_biens):
             'statut': 'REJETEE',
             'jours_depuis_publication': 5,
             'vendeur_idx': 0,  # Ahmed Benali
-            'bien_idx': 9      # Résidence El Riadh
+            'bien_idx': 9,     # Résidence El Riadh
+            'images': ['appartement3.jpg', 'appartement5.jpg', 'chamre5.jpg']
         },
         {
             'titre': 'Fermette à rénover',
@@ -401,7 +408,8 @@ def creer_annonces_et_media(ids_vendeurs, ids_biens):
             'statut': 'REJETEE',
             'jours_depuis_publication': 12,
             'vendeur_idx': 1,  # Fatima Zahraoui
-            'bien_idx': 6      # Route nationale 5
+            'bien_idx': 6,     # Route nationale 5
+            'images': ['maison2.jpg']
         },
         # Annonces en brouillon (en cours de préparation par le vendeur)
         {
@@ -411,7 +419,8 @@ def creer_annonces_et_media(ids_vendeurs, ids_biens):
             'statut': 'BROUILLON',
             'jours_depuis_publication': 0,  # Aujourd'hui
             'vendeur_idx': 2,  # Karim Dubois
-            'bien_idx': 2      # 78 Rue Larbi Ben Mhidi
+            'bien_idx': 2,     # 78 Rue Larbi Ben Mhidi
+            'images': ['chambre4.jpg']
         },
         {
             'titre': 'Loft industriel réhabilité',
@@ -420,7 +429,8 @@ def creer_annonces_et_media(ids_vendeurs, ids_biens):
             'statut': 'BROUILLON',
             'jours_depuis_publication': 0,  # Aujourd'hui
             'vendeur_idx': 0,  # Ahmed Benali
-            'bien_idx': 4      # Chemin des Pins
+            'bien_idx': 4,     # Chemin des Pins
+            'images': ['appartement1.jpg', 'maison3.jpg']
         }
     ]
 
@@ -459,16 +469,10 @@ def creer_annonces_et_media(ids_vendeurs, ids_biens):
                 id_annonce = curseur.lastrowid
                 ids_annonces.append(id_annonce)
 
-                # Créer des médias factices (photos) pour certaines annonces
-                # On ajoute des photos seulement aux annonces EN_ATTENTE et PUBLIEE pour plus de réalisme
-                if annonce_data['statut'] in ('EN_ATTENTE', 'PUBLIEE'):
-                    nb_photos = 3 if annonce_data['statut'] == 'PUBLIEE' else 2  # Plus de photos pour les publiées
-
-                    for i in range(nb_photos):
-                        # Générer un nom de fichier factice
-                        extension = 'jpg' if i % 2 == 0 else 'png'
-                        nom_fichier = f"{uuid.uuid4().hex}.{extension}"
-                        chemin_relatif = os.path.join('static', 'uploads', nom_fichier)
+                # Associer les vraies images pour l'annonce
+                if 'images' in annonce_data and annonce_data['images']:
+                    for i, nom_fichier in enumerate(annonce_data['images']):
+                        chemin_relatif = f"uploads/{nom_fichier}"
 
                         # Insérer dans MEDIA
                         curseur.execute(
