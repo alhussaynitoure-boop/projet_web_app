@@ -308,9 +308,9 @@ def publier():
             # current_app.config['UPLOAD_FOLDER'] = /projet/static/uploads/
             chemin_complet = os.path.join(current_app.config['UPLOAD_FOLDER'], nom_unique)
             
-            # Chemin relatif pour stocker en BDD (pour l'affichage dans les templates)
-            # On stocke "static/uploads/abc123.jpg" pas le chemin absolu complet
-            chemin_relatif = os.path.join('static', 'uploads', nom_unique)
+            # Chemin relatif pour stocker en BDD : "uploads/abc123.jpg"
+            # url_for('static', filename=chemin_relatif) produit l'URL correcte
+            chemin_relatif = f"uploads/{nom_unique}"
             
             # ── Sauvegarde du fichier sur le disque ───────────────────────────
             fichier.save(chemin_complet)
@@ -521,7 +521,7 @@ def modifier(annonce_id):
             nom_unique = f"{uuid.uuid4().hex}.{extension}"
             
             chemin_complet = os.path.join(current_app.config['UPLOAD_FOLDER'], nom_unique)
-            chemin_relatif = os.path.join('static', 'uploads', nom_unique)
+            chemin_relatif = f"uploads/{nom_unique}"
             
             fichier.save(chemin_complet)
             
