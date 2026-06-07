@@ -3,7 +3,8 @@
 <!-- ===================== STYLES ===================== -->
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
-     :root {
+
+    :root {
         --bg-primary: #0e0e12;
         --bg-card: #16161e;
         --bg-card-hover: #1c1c28;
@@ -18,7 +19,7 @@
         --radius: 14px;
         --transition: .22s cubic-bezier(.4, 0, .2, 1);
     }
-    
+
     *,
     *::before,
     *::after {
@@ -26,7 +27,7 @@
         margin: 0;
         padding: 0;
     }
-    
+
     body {
         background: var(--bg-primary);
         color: var(--text-primary);
@@ -34,15 +35,17 @@
         font-size: 15px;
         line-height: 1.6;
     }
+
     /* ---- LAYOUT ---- */
-    
+
     .detail-wrapper {
         max-width: 1160px;
         margin: 0 auto;
         padding: 36px 24px 64px;
     }
+
     /* ---- BACK LINK ---- */
-    
+
     .back-link {
         display: inline-flex;
         align-items: center;
@@ -55,17 +58,18 @@
         margin-bottom: 28px;
         transition: color var(--transition);
     }
-    
+
     .back-link:hover {
         color: var(--accent-alt);
     }
-    
+
     .back-link svg {
         width: 16px;
         height: 16px;
     }
+
     /* ---- PAGE HEADER ---- */
-    
+
     .page-header {
         display: flex;
         align-items: flex-start;
@@ -74,7 +78,7 @@
         gap: 16px;
         margin-bottom: 32px;
     }
-    
+
     .page-header h1 {
         font-family: 'Syne', sans-serif;
         font-size: clamp(22px, 3vw, 32px);
@@ -82,7 +86,7 @@
         color: var(--text-primary);
         line-height: 1.2;
     }
-    
+
     .page-header .meta {
         display: flex;
         align-items: center;
@@ -90,8 +94,9 @@
         flex-wrap: wrap;
         margin-top: 8px;
     }
+
     /* ---- BADGES ---- */
-    
+
     .badge {
         display: inline-flex;
         align-items: center;
@@ -103,31 +108,31 @@
         letter-spacing: .05em;
         text-transform: uppercase;
     }
-    
+
     .badge-green {
         background: rgba(0, 230, 118, .12);
         color: var(--green);
         border: 1px solid rgba(0, 230, 118, .25);
     }
-    
+
     .badge-orange {
         background: rgba(255, 152, 0, .12);
         color: var(--orange);
         border: 1px solid rgba(255, 152, 0, .25);
     }
-    
+
     .badge-red {
         background: rgba(255, 82, 82, .12);
         color: var(--red);
         border: 1px solid rgba(255, 82, 82, .25);
     }
-    
+
     .badge-cyan {
         background: rgba(0, 229, 255, .10);
         color: var(--accent-alt);
         border: 1px solid rgba(0, 229, 255, .2);
     }
-    
+
     .price-tag {
         font-family: 'Syne', sans-serif;
         font-size: 26px;
@@ -137,22 +142,24 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
+
     /* ---- GRID ---- */
-    
+
     .detail-grid {
         display: grid;
         grid-template-columns: 1fr 340px;
         gap: 24px;
         align-items: start;
     }
-    
+
     @media (max-width: 820px) {
         .detail-grid {
             grid-template-columns: 1fr;
         }
     }
+
     /* ---- CARD ---- */
-    
+
     .card {
         background: var(--bg-card);
         border: 1px solid var(--border);
@@ -160,11 +167,11 @@
         padding: 24px;
         transition: border-color var(--transition);
     }
-    
+
     .card:hover {
         border-color: rgba(255, 255, 255, .13);
     }
-    
+
     .card-title {
         font-family: 'Syne', sans-serif;
         font-size: 13px;
@@ -177,21 +184,22 @@
         align-items: center;
         gap: 8px;
     }
-    
+
     .card-title::after {
         content: '';
         flex: 1;
         height: 1px;
         background: var(--border);
     }
+
     /* ---- PHOTO GALLERY ---- */
-    
+
     .gallery-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
         gap: 10px;
     }
-    
+
     .gallery-grid img {
         width: 100%;
         aspect-ratio: 4/3;
@@ -201,38 +209,39 @@
         transition: transform var(--transition), border-color var(--transition);
         cursor: pointer;
     }
-    
+
     .gallery-grid img:hover {
         transform: scale(1.02);
         border-color: var(--accent);
     }
-    
+
     .no-media {
         color: var(--text-muted);
         font-size: 14px;
         text-align: center;
         padding: 32px 0;
     }
+
     /* ---- INFO TABLE ---- */
-    
+
     .info-table {
         width: 100%;
         border-collapse: collapse;
     }
-    
+
     .info-table tr {
         border-bottom: 1px solid var(--border);
         transition: background var(--transition);
     }
-    
+
     .info-table tr:last-child {
         border-bottom: none;
     }
-    
+
     .info-table tr:hover {
         background: rgba(255, 255, 255, .03);
     }
-    
+
     .info-table th {
         width: 38%;
         padding: 12px 8px;
@@ -243,21 +252,22 @@
         text-transform: uppercase;
         color: var(--text-muted);
     }
-    
+
     .info-table td {
         padding: 12px 8px;
         font-size: 14px;
         color: var(--text-primary);
     }
+
     /* ---- SELLER CARD ---- */
-    
+
     .seller-profile {
         display: flex;
         align-items: center;
         gap: 14px;
         margin-bottom: 18px;
     }
-    
+
     .seller-avatar {
         width: 48px;
         height: 48px;
@@ -272,20 +282,21 @@
         color: #fff;
         flex-shrink: 0;
     }
-    
+
     .seller-name {
         font-family: 'Syne', sans-serif;
         font-weight: 700;
         font-size: 15px;
     }
-    
+
     .seller-email {
         font-size: 12px;
         color: var(--text-muted);
         margin-top: 2px;
     }
+
     /* ---- BUTTON ---- */
-    
+
     .btn {
         display: inline-flex;
         align-items: center;
@@ -303,29 +314,30 @@
         width: 100%;
         margin-top: 8px;
     }
-    
+
     .btn-primary {
         background: linear-gradient(90deg, var(--accent), var(--accent-alt));
         color: #fff;
     }
-    
+
     .btn-primary:hover {
         opacity: .88;
         transform: translateY(-1px);
     }
-    
+
     .btn-outline {
         background: transparent;
         border: 1px solid var(--border);
         color: var(--text-primary);
     }
-    
+
     .btn-outline:hover {
         border-color: var(--accent-alt);
         color: var(--accent-alt);
     }
+
     /* ---- OTHER LISTINGS ---- */
-    
+
     .listing-item {
         display: flex;
         align-items: center;
@@ -336,26 +348,26 @@
         color: var(--text-primary);
         transition: color var(--transition);
     }
-    
+
     .listing-item:last-child {
         border-bottom: none;
     }
-    
+
     .listing-item:hover {
         color: var(--accent-alt);
     }
-    
+
     .listing-title {
         font-size: 13px;
         font-weight: 500;
     }
-    
+
     .listing-meta {
         font-size: 11px;
         color: var(--text-muted);
         margin-top: 2px;
     }
-    
+
     .listing-price {
         font-family: 'Syne', sans-serif;
         font-size: 13px;
@@ -364,7 +376,7 @@
         white-space: nowrap;
         margin-left: 12px;
     }
-    
+
     .no-listings {
         color: var(--text-muted);
         font-size: 13px;
@@ -378,7 +390,9 @@
 
     <!-- Back -->
     <a href="{{ url_for('index') }}" class="back-link">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg> Retour à l'accueil
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg> Retour à l'accueil
     </a>
 
     <!-- Header -->
@@ -391,8 +405,8 @@
                 <span class="badge badge-red">● {{ annonce.statut }}</span> {% else %}
                 <span class="badge badge-orange">● {{ annonce.statut }}</span> {% endif %}
                 <span style="color:var(--text-muted);font-size:13px;">
-          📍 {{ annonce.adresse }}
-        </span>
+                    📍 {{ annonce.adresse }}
+                </span>
             </div>
         </div>
         <div class="price-tag">{{ annonce.prix|int }} DA</div>
@@ -407,12 +421,18 @@
             <!-- Photos -->
             <div class="card">
                 <div class="card-title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg> Photos
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <path d="M21 15l-5-5L5 21" />
+                    </svg> Photos
                 </div>
                 {% if medias %}
                 <div class="gallery-grid">
                     {% for media in medias %}
-                    <img src="{{ media.url }}" alt="Photo {{ loop.index }}"> {% endfor %}
+                    {% set _fn = media.url.replace('static/', '', 1) if media.url.startswith('static/') else media.url
+                    %}
+                    <img src="{{ url_for('static', filename=_fn) }}" alt="Photo {{ loop.index }}"> {% endfor %}
                 </div>
                 {% else %}
                 <p class="no-media">📷 Aucune photo disponible</p>
@@ -422,7 +442,10 @@
             <!-- Informations -->
             <div class="card">
                 <div class="card-title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg> Informations
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="M12 16v-4M12 8h.01" />
+                    </svg> Informations
                 </div>
                 <table class="info-table">
                     <tr>
@@ -453,7 +476,8 @@
                         <th>Statut</th>
                         <td>
                             {% if annonce.statut == 'Disponible' %}
-                            <span class="badge badge-green">{{ annonce.statut }}</span> {% elif annonce.statut == 'Vendu' %}
+                            <span class="badge badge-green">{{ annonce.statut }}</span> {% elif annonce.statut ==
+                            'Vendu' %}
                             <span class="badge badge-red">{{ annonce.statut }}</span> {% else %}
                             <span class="badge badge-orange">{{ annonce.statut }}</span> {% endif %}
                         </td>
@@ -470,50 +494,67 @@
             <!-- Vendeur -->
             <div class="card">
                 <div class="card-title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Vendeur
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg> Vendeur
                 </div>
                 {% if session.get('user_id') %}
-                    <div class="seller-profile">
-                        <div class="seller-avatar">
-                            {{ annonce.vendeur_nom[0]|upper if annonce.vendeur_nom else '?' }}
-                        </div>
-                        <div>
-                            <div class="seller-name">{{ annonce.vendeur_nom }}</div>
-                            <div class="seller-email">{{ annonce.vendeur_email }}</div>
-                        </div>
+                <div class="seller-profile">
+                    <div class="seller-avatar">
+                        {{ annonce.vendeur_nom[0]|upper if annonce.vendeur_nom else '?' }}
                     </div>
-                    <a href="mailto:{{ annonce.vendeur_email }}" class="btn btn-primary">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg> Contacter par email
-                    </a>
-                    {% if annonce.telephone %}
-                        <a href="tel:{{ annonce.telephone }}" class="btn btn-outline" style="margin-top:10px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.9 2 2 0 0 1 3.58 2.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.26a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-                            Appeler: {{ annonce.telephone }}
-                        </a>
-                    {% endif %}
+                    <div>
+                        <div class="seller-name">{{ annonce.vendeur_nom }}</div>
+                        <div class="seller-email">{{ annonce.vendeur_email }}</div>
+                    </div>
+                </div>
+                <a href="mailto:{{ annonce.vendeur_email }}" class="btn btn-primary">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                    </svg> Contacter par email
+                </a>
+                {% if annonce.telephone %}
+                <a href="tel:{{ annonce.telephone }}" class="btn btn-outline" style="margin-top:10px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path
+                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13.5 19.79 19.79 0 0 1 1.61 4.9 2 2 0 0 1 3.58 2.72h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 10.26a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                    Appeler: {{ annonce.telephone }}
+                </a>
+                {% endif %}
                 {% else %}
-                    <div style="text-align: center; padding: 1rem 0;">
-                        <span style="font-size: 2.2rem; display: block; margin-bottom: 0.5rem;">🔒</span>
-                        <h4 style="font-family: 'Syne', sans-serif; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-primary);">Coordonnées verrouillées</h4>
-                        <p style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 1.25rem;">
-                            Veuillez vous connecter ou vous inscrire pour voir les coordonnées de ce vendeur.
-                        </p>
-                        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-                            <a href="{{ url_for('auth.connexion', next=request.path) }}" class="btn btn-primary" style="font-size: 0.8rem; padding: 0.5rem 1.2rem; width: 100%;">
-                                Se connecter
-                            </a>
-                            <a href="{{ url_for('auth.inscription') }}" class="btn btn-outline" style="font-size: 0.8rem; padding: 0.5rem 1.2rem; width: 100%; margin-top:0;">
-                                S'inscrire
-                            </a>
-                        </div>
+                <div style="text-align: center; padding: 1rem 0;">
+                    <span style="font-size: 2.2rem; display: block; margin-bottom: 0.5rem;">🔒</span>
+                    <h4
+                        style="font-family: 'Syne', sans-serif; font-size: 0.95rem; margin-bottom: 0.5rem; color: var(--text-primary);">
+                        Coordonnées verrouillées</h4>
+                    <p
+                        style="font-size: 0.78rem; color: var(--text-secondary); line-height: 1.4; margin-bottom: 1.25rem;">
+                        Veuillez vous connecter ou vous inscrire pour voir les coordonnées de ce vendeur.
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <a href="{{ url_for('auth.connexion', next=request.path) }}" class="btn btn-primary"
+                            style="font-size: 0.8rem; padding: 0.5rem 1.2rem; width: 100%;">
+                            Se connecter
+                        </a>
+                        <a href="{{ url_for('auth.inscription') }}" class="btn btn-outline"
+                            style="font-size: 0.8rem; padding: 0.5rem 1.2rem; width: 100%; margin-top:0;">
+                            S'inscrire
+                        </a>
                     </div>
+                </div>
                 {% endif %}
             </div>
 
             <!-- Autres annonces -->
             <div class="card">
                 <div class="card-title">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> Autres annonces du vendeur
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                    </svg> Autres annonces du vendeur
                 </div>
                 {% if historique %} {% for h in historique %}
                 <a href="{{ url_for('detail_annonce', annonce_id=h.id) }}" class="listing-item">
