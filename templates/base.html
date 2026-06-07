@@ -2,6 +2,7 @@
 <!-- Déclaration du type de document HTML5 -->
 <html lang="fr">
 <!-- Début de l'en-tête du document -->
+
 <head>
     <!-- Définition du jeu de caractères universel UTF-8 -->
     <meta charset="UTF-8">
@@ -14,15 +15,18 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Importation des polices Syne (titres, nav) et DM Sans (corps du texte) -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
-    
+    <link
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;700&family=Syne:wght@700;800&display=swap"
+        rel="stylesheet">
+
     <!-- Lien vers le fichier CSS principal de l'application via url_for -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    
+
     <!-- Bloc optionnel pour ajouter des feuilles de style spécifiques à certaines pages -->
     {% block styles %}{% endblock %}
 </head>
 <!-- Début du corps de la page -->
+
 <body>
 
     <!-- Barre de navigation principale avec en-tête fixé -->
@@ -39,47 +43,50 @@
                 <a href="{{ url_for('index') }}" class="navbar__link">
                     🏠 Accueil
                 </a>
-                
+
                 <!-- Section conditionnelle affichant des liens spécifiques selon la session -->
                 {% if session.get('user_id') %}
-                    <!-- Si l'utilisateur connecté est un vendeur, afficher les fonctionnalités de vente -->
-                    {% if session.get('role') == 'VENDEUR' %}
-                        <!-- Lien vers le formulaire de publication d'annonce dans le blueprint annonces -->
-                        <a href="{{ url_for('annonces.publier') }}" class="navbar__link">
-                            ➕ Publier
-                        </a>
-                        <!-- Lien vers l'espace personnel du vendeur pour voir ses annonces -->
-                        <a href="{{ url_for('mes_annonces') }}" class="navbar__link">
-                            📁 Mes Annonces
-                        </a>
-                    <!-- Si l'utilisateur connecté est un administrateur, afficher le lien du panel admin -->
-                    {% elif session.get('role') == 'ADMIN' %}
-                        <!-- Lien vers le panel de modération dans le blueprint admin -->
-                        <a href="{{ url_for('admin.panel') }}" class="navbar__link navbar__link--admin">
-                            🛡️ Modération
-                        </a>
-                    {% endif %}
+                <!-- Si l'utilisateur connecté est un vendeur, afficher les fonctionnalités de vente -->
+                {% if session.get('role') == 'VENDEUR' %}
+                <!-- Lien vers le formulaire de publication d'annonce dans le blueprint annonces -->
+                <a href="{{ url_for('annonces.publier') }}" class="navbar__link">
+                    ➕ Publier
+                </a>
+                <!-- Lien vers l'espace personnel du vendeur pour voir ses annonces -->
+                <a href="{{ url_for('mes_annonces') }}" class="navbar__link">
+                    📁 Mes Annonces
+                </a>
+                <!-- Si l'utilisateur connecté est un administrateur, afficher le lien du panel admin -->
+                {% elif session.get('role') == 'ADMIN' %}
+                <!-- Lien vers le panel de modération dans le blueprint admin -->
+                <a href="{{ url_for('admin.panel') }}" class="navbar__link navbar__link--admin">
+                    🛡️ Modération
+                </a>
+                {% endif %}
                 {% endif %}
 
                 <!-- Bloc masqué par défaut, affiché uniquement sur mobile pour la zone utilisateur -->
-                <div class="navbar__user-mobile" style="display: none; padding-top: 1rem; border-top: 1px solid var(--border); margin-top: 0.5rem; width: 100%; flex-direction: column; gap: 0.5rem;">
+                <div class="navbar__user-mobile"
+                    style="display: none; padding-top: 1rem; border-top: 1px solid var(--border); margin-top: 0.5rem; width: 100%; flex-direction: column; gap: 0.5rem;">
                     {% if session.get('user_id') %}
-                        <!-- Affichage du nom et du rôle de l'utilisateur sur mobile -->
-                        <span class="navbar__username" style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
-                            👤 {{ session.get('nom') }} <small style="color: var(--pink);">({{ session.get('role') }})</small>
-                        </span>
-                        <!-- Bouton de déconnexion dans le blueprint auth -->
-                        <a href="{{ url_for('auth.deconnexion') }}" class="btn btn--sm btn--danger" style="width: 100%;">
-                            Déconnexion
-                        </a>
+                    <!-- Affichage du nom et du rôle de l'utilisateur sur mobile -->
+                    <span class="navbar__username"
+                        style="margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem;">
+                        👤 {{ session.get('nom') }} <small style="color: var(--pink);">({{ session.get('role')
+                            }})</small>
+                    </span>
+                    <!-- Bouton de déconnexion dans le blueprint auth -->
+                    <a href="{{ url_for('auth.deconnexion') }}" class="btn btn--sm btn--danger" style="width: 100%;">
+                        Déconnexion
+                    </a>
                     {% else %}
-                        <!-- Liens de connexion et d'inscription si anonyme sur mobile -->
-                        <a href="{{ url_for('auth.connexion') }}" class="btn btn--sm btn--ghost" style="width: 100%;">
-                            Connexion
-                        </a>
-                        <a href="{{ url_for('auth.inscription') }}" class="btn btn--sm btn--primary" style="width: 100%;">
-                            Inscription
-                        </a>
+                    <!-- Liens de connexion et d'inscription si anonyme sur mobile -->
+                    <a href="{{ url_for('auth.connexion') }}" class="btn btn--sm btn--ghost" style="width: 100%;">
+                        Connexion
+                    </a>
+                    <a href="{{ url_for('auth.inscription') }}" class="btn btn--sm btn--primary" style="width: 100%;">
+                        Inscription
+                    </a>
                     {% endif %}
                 </div>
             </div>
@@ -87,22 +94,24 @@
             <!-- Zone utilisateur réservée aux écrans d'ordinateurs (Desktop) -->
             <div class="navbar__user">
                 {% if session.get('user_id') %}
-                    <!-- Salutations et rôle de l'utilisateur -->
-                    <span class="navbar__username">
-                        👤 {{ session.get('nom') }} <small style="color: var(--pink); font-family: 'Syne', sans-serif; font-size: 0.75rem;">({{ session.get('role') }})</small>
-                    </span>
-                    <!-- Bouton de déconnexion direct -->
-                    <a href="{{ url_for('auth.deconnexion') }}" class="btn btn--sm btn--ghost">
-                        Déconnexion
-                    </a>
+                <!-- Salutations et rôle de l'utilisateur -->
+                <span class="navbar__username">
+                    👤 {{ session.get('nom') }} <small
+                        style="color: var(--pink); font-family: 'Syne', sans-serif; font-size: 0.75rem;">({{
+                        session.get('role') }})</small>
+                </span>
+                <!-- Bouton de déconnexion direct -->
+                <a href="{{ url_for('auth.deconnexion') }}" class="btn btn--sm btn--ghost">
+                    Déconnexion
+                </a>
                 {% else %}
-                    <!-- Boutons Connexion / Inscription si non connecté -->
-                    <a href="{{ url_for('auth.connexion') }}" class="btn btn--sm btn--ghost">
-                        Connexion
-                    </a>
-                    <a href="{{ url_for('auth.inscription') }}" class="btn btn--sm btn--primary">
-                        Inscription
-                    </a>
+                <!-- Boutons Connexion / Inscription si non connecté -->
+                <a href="{{ url_for('auth.connexion') }}" class="btn btn--sm btn--ghost">
+                    Connexion
+                </a>
+                <a href="{{ url_for('auth.inscription') }}" class="btn btn--sm btn--primary">
+                    Inscription
+                </a>
                 {% endif %}
             </div>
 
@@ -117,32 +126,34 @@
 
     <!-- Zone réservée aux messages flash (alertes temporaires) envoyés par Flask -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <!-- Conteneur global des messages flash -->
-            <div class="flash-wrapper">
-                {% for category, message in messages %}
-                    <!-- Initialisation et mappage des classes CSS d'alertes en fonction de la catégorie Flask -->
-                    {% set alert_class = 'alert--info' %}
-                    {% if category == 'success' %}
-                        {% set alert_class = 'alert--success' %}
-                    {% elif category == 'danger' or category == 'error' %}
-                        {% set alert_class = 'alert--danger' %}
-                    {% elif category == 'warning' %}
-                        {% set alert_class = 'alert--warning' %}
-                    {% endif %}
-                    
-                    <!-- Affichage de la boîte d'alerte avec structure dismissible -->
-                    <div class="alert {{ alert_class }}" role="alert">
-                        <span class="alert__icon">
-                            {% if category == 'success' %}🟢{% elif category == 'danger' or category == 'error' %}🔴{% elif category == 'warning' %}🟡{% else %}🔵{% endif %}
-                        </span>
-                        <span class="alert__text">{{ message }}</span>
-                        <!-- Bouton de fermeture de l'alerte en JS natif -->
-                        <button type="button" class="alert__close" onclick="this.parentElement.remove();" aria-label="Fermer">&times;</button>
-                    </div>
-                {% endfor %}
-            </div>
+    {% if messages %}
+    <!-- Conteneur global des messages flash -->
+    <div class="flash-wrapper">
+        {% for category, message in messages %}
+        <!-- Initialisation et mappage des classes CSS d'alertes en fonction de la catégorie Flask -->
+        {% set alert_class = 'alert--info' %}
+        {% if category == 'success' %}
+        {% set alert_class = 'alert--success' %}
+        {% elif category == 'danger' or category == 'error' %}
+        {% set alert_class = 'alert--danger' %}
+        {% elif category == 'warning' %}
+        {% set alert_class = 'alert--warning' %}
         {% endif %}
+
+        <!-- Affichage de la boîte d'alerte avec structure dismissible -->
+        <div class="alert {{ alert_class }}" role="alert">
+            <span class="alert__icon">
+                {% if category == 'success' %}🟢{% elif category == 'danger' or category == 'error' %}🔴{% elif category
+                == 'warning' %}🟡{% else %}🔵{% endif %}
+            </span>
+            <span class="alert__text">{{ message }}</span>
+            <!-- Bouton de fermeture de l'alerte en JS natif -->
+            <button type="button" class="alert__close" onclick="this.parentElement.remove();"
+                aria-label="Fermer">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
 
     <!-- Conteneur principal pour le contenu spécifique de chaque page héritée -->
@@ -156,14 +167,12 @@
         <div class="footer__inner">
             <!-- Branding et description rapide du service DZ-Immobilier -->
             <div class="footer__brand">
-                <a href="{{ url_for('index') }}" class="navbar__logo" style="margin-bottom: 0.5rem; display: inline-block;">
+                <a href="{{ url_for('index') }}" class="navbar__logo"
+                    style="margin-bottom: 0.5rem; display: inline-block;">
                     DZ-<span>Immobilier</span>
                 </a>
-                <p class="footer__tagline">
-                    La première plateforme immobilière algérienne boostée par l'intelligence artificielle pour estimer et trouver le bien parfait dans les 58 wilayas.
-                </p>
             </div>
-            
+
             <!-- Liens de bas de page organisés en colonnes thématiques -->
             <div class="footer__links">
                 <!-- Colonne de navigation -->
@@ -172,8 +181,8 @@
                     <ul>
                         <li><a href="{{ url_for('index') }}">Accueil</a></li>
                         {% if session.get('role') == 'VENDEUR' %}
-                            <li><a href="{{ url_for('annonces.publier') }}">Publier une annonce</a></li>
-                            <li><a href="{{ url_for('mes_annonces') }}">Mes Annonces</a></li>
+                        <li><a href="{{ url_for('annonces.publier') }}">Publier une annonce</a></li>
+                        <li><a href="{{ url_for('mes_annonces') }}">Mes Annonces</a></li>
                         {% endif %}
                     </ul>
                 </div>
@@ -182,10 +191,10 @@
                     <h4 class="footer__heading">Compte</h4>
                     <ul>
                         {% if session.get('user_id') %}
-                            <li><a href="{{ url_for('auth.deconnexion') }}">Se Déconnecter</a></li>
+                        <li><a href="{{ url_for('auth.deconnexion') }}">Se Déconnecter</a></li>
                         {% else %}
-                            <li><a href="{{ url_for('auth.connexion') }}">Se Connecter</a></li>
-                            <li><a href="{{ url_for('auth.inscription') }}">S'inscrire</a></li>
+                        <li><a href="{{ url_for('auth.connexion') }}">Se Connecter</a></li>
+                        <li><a href="{{ url_for('auth.inscription') }}">S'inscrire</a></li>
                         {% endif %}
                     </ul>
                 </div>
@@ -202,7 +211,7 @@
         </div>
         <!-- Mention des droits d'auteur et copyright -->
         <div class="footer__bottom">
-            <p>&copy; 2026 DZ-Immobilier. Tous droits réservés. Développé avec Flask & Jinja2.</p>
+            <p>&copy; 2026 DZ-Immobilier</p>
         </div>
     </footer>
 
@@ -221,7 +230,7 @@
                     burger.classList.toggle('navbar__burger--open');
                     // Basculer la classe pour ouvrir / afficher le menu sur mobile
                     links.classList.toggle('navbar__links--open');
-                    
+
                     // Affichage conditionnel de la zone utilisateur mobile dans la liste ouverte
                     if (links.classList.contains('navbar__links--open')) {
                         mobileUserZone.style.display = 'flex';
@@ -232,8 +241,9 @@
             }
         });
     </script>
-    
+
     <!-- Bloc optionnel pour ajouter des scripts JS spécifiques en fin de page child -->
     {% block scripts %}{% endblock %}
 </body>
+
 </html>
